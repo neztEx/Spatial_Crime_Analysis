@@ -75,4 +75,4 @@ class CustomStreamListener(tweepy.StreamListener):
     def on_error(self, status_code):
         print('error {}'.format(status_code))
 streamingAPI = tweepy.streaming.Stream(auth, CustomStreamListener(), tweet_mode= 'extended', allow_retweets=False)
-streamingAPI.filter(track=['rape','murder','harassment','violance', 'robbery', 'criminal', 'fraud', 'police'], is_async=True)
+streamingAPI.filter(track=['rape','murder','harassment', 'shooting', 'pursuit', 'suspects', 'injured'], is_async=True)
