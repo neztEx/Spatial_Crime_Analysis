@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen
+from sqlalchemy.sql import select, func
 
 
 def load_spatialite(dbapi_conn, connection_record):

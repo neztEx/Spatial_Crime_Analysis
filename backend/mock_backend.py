@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from json import dumps
+from sqlalchemy import create_engine
+from sqlalchemy.event import listen
+from sqlalchemy.sql import select, func
+
 import csv
 
 '''
@@ -17,6 +21,7 @@ with open('../dataset/crime_data.csv') as csvfile:
       else:
         data.append(datum)
 '''
+
 
 app = Flask(__name__)
 api = Api(app)
