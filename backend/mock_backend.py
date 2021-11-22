@@ -7,7 +7,7 @@ import csv
 col_name = []
 data = []
 
-with open('crime_data.csv') as csvfile:
+with open('../dataset/crime_data.csv') as csvfile:
   crime_data = csv.reader(csvfile)
   
   for i, row in enumerate(crime_data):
