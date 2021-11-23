@@ -1,10 +1,10 @@
 import { FaHome, FaMapMarkedAlt, FaDatabase } from "react-icons/fa";
-
+import React from 'react'
 
 export const SidebarData = [
   {
     title: 'Home',
-    path: '/welcome',
+    path: '/',
     icon: <FaHome />,
     cName: 'nav-text'
   },

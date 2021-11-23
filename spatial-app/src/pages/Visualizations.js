@@ -1,3 +1,5 @@
+import React from 'react'
+
 function Visualizations() {
     return (
       <div className='visualizations'>

@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from './pages/Home.js';
 import Analytics from './pages/Analytics.js';
 import Visualizations from './pages/Visualizations.js';
-
+import React from 'react'
 
 function App() {
   return (
@@ -12,7 +12,7 @@ function App() {
         <BrowserRouter>
           <Navbar/>
           <Routes>
-            <Route path='/welcome' element={<Home/>} />
+            <Route path='/' element={<Home/>} />
             <Route path='/overview' element={<Analytics/>} />
             <Route path='/map' element={<Visualizations/>} />
             
