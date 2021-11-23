@@ -1,11 +1,12 @@
 import React from 'react'
+import MapView from '../components/mapView';
 
 function Visualizations() {
     return (
-      <div className='visualizations'>
-        <h1>Visualizations</h1>
-      </div>
-    );
+      
+      <MapView />
+      
+    )
 }
 
 export default Visualizations;
