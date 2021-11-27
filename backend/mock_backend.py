@@ -15,13 +15,43 @@ class Analysis(Resource):
 
 class Map(Resource):
   def get(self):
-    return {'map': 'test'}
+    return {'crimes': [
+      {
+        'type': 'Burglary',
+        'location': {'latitude': 34.049738, 
+                      'longitude': -118.238238}
+      },
+      {
+        'type': 'Assault',
+        'location': {'latitude': 34.1, 
+                      'longitude': -118.2}
+      },
+      {
+        'type': 'Burglary',
+        'location': {'latitude': 34.0, 
+                      'longitude': -118.3}
+      },
+      {
+        'type': 'Burglary',
+        'location': {'latitude': 34.0498, 
+                      'longitude': -118.238}
+      },
+      {
+        'type': 'Assault',
+        'location': {'latitude': 34.15, 
+                      'longitude': -118.25}
+      },
+      {
+        'type': 'Burglary',
+        'location': {'latitude': 34.05, 
+                      'longitude': -118.35}
+      }
+
+    ]}
 
 
 api.add_resource(Analysis, '/analysis')
 api.add_resource(Map, '/map')
 
 if __name__ == '__main__':
-  #app.run(port='5002')
-  conn.engine.connect()
-  conn.close()
+  app.run(port='5002')
