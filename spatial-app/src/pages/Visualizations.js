@@ -1,11 +1,16 @@
 import React from 'react'
+import '../App.css'
+import MapView from '../components/GoogleMap';
+
+
 
 function Visualizations() {
     return (
-      <div className='visualizations'>
-        <h1>Visualizations</h1>
-      </div>
-    );
+      // <div className='map-view'>
+        <MapView/>
+      // {/* </div> */}
+      // <Map/>
+    )
 }
 
 export default Visualizations;
