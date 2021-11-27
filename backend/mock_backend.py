@@ -1,9 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
 from json import dumps
-from sqlalchemy import create_engine
-from sqlalchemy.event import listen
-from sqlalchemy.sql import select, func
 
 
 app = Flask(__name__)
