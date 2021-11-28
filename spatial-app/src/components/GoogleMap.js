@@ -23,11 +23,7 @@ import { formatRelative } from "date-fns";
 import "@reach/combobox/styles.css";
 // import mapStyles from "../mapStyles";
 import "../App.css";
-import * as parksData from '../mockData/mock.json'
-import QueryServer from './QueryServer'
-
-
-
+import * as QueryServer from './QueryServer'
 
 const libraries = ["places"];
 
@@ -57,18 +53,15 @@ export default function MapView() {
 
   const [selected, setSelected] = React.useState(null);
 
-  const makeQuery = useCallback(() => {
-
-  }, [])
-
-  const [crimeData, setCrimeData] = React.useState({'crimes': []})
+  const [crimeData, setCrimeData] = React.useState(null)
 
   //we can retain state on 
   const mapRef = React.useRef()
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map
     console.log("LOADED MAP")
-    QueryServer().then(result_json => setCrimeData(result_json))
+    QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
+    console.log(crimeData)
   }, [])
 
   const panTo = React.useCallback(({ lat, lng }) => {
@@ -172,36 +165,45 @@ function Search({ panTo }) {
 }
 
 function DataPoints({ setSelected, crimeData }) {
-  const points = crimeData.crimes.map((crime) =>
-    <Circle
-      radius={100}
-      center={{
-        lat: crime.location.latitude,
-        lng: crime.location.longitude
-      }}
-      // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
-      // animation='BOUNCE'
-      onClick={() => {
-        setSelected(crime)
-      }}
-    />)
-  return points
+  console.log(crimeData)
+  if (crimeData) {
+    const points = crimeData.map((crime) =>
+      <Circle
+        key={crime.DR_NO}
+        radius={100}
+        center={{
+          lat: crime.LAT,
+          lng: crime.LON
+        }}
+        // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
+        // animation='BOUNCE'
+        onClick={() => {
+          setSelected(crime)
+        }}
+      />)
+
+    return points
+  }
+  else return null
 }
 
 function CrimeInfo({ selected, setSelected }) {
   return (
     selected ? (
       <InfoWindow
-        position={{ lat: selected.location.latitude, lng: selected.location.longitude }}
+        position={{ lat: selected.LAT, lng: selected.LON }}
         onCloseClick={() => {
           setSelected(null);
         }}
       >
         <div>
-          <h4>
-            Crime
-          </h4>
-          <p>Spotted</p>
+          <b>{selected.Crm_Cd_Desc}</b>
+          <p>Details</p>
+          <ul>
+            <li>Age: {selected.Vict_Age}</li>
+            <li>Sex: {selected.Vict_Sex}</li>
+            <li>Time: {selected.TIME_OCC}</li>
+          </ul>
         </div>
       </InfoWindow>
     ) : null
