@@ -3,6 +3,7 @@ import {
   GoogleMap,
   useLoadScript,
   Marker,
+  Circle,
   InfoWindow,
   Data,
 } from "@react-google-maps/api";
@@ -79,13 +80,14 @@ export default function MapView() {
         onLoad={onMapLoad}
       >
         {parksData.features.map((park) => (
-          <Marker
+          <Circle
             key={park.properties.PARK_ID}
-            position={{
+            radius={100}
+            center={{
               lat: park.geometry.coordinates[1],
               lng: park.geometry.coordinates[0]
             }}
-            icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
+            // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
             animation='BOUNCE'
             onClick={()=>{
               setSelected(park)
