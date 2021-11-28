@@ -61,12 +61,14 @@ export default function MapView() {
 
   }, [])
 
+  const [crimeData, setCrimeData] = React.useState({'crimes': []})
 
   //we can retain state on 
   const mapRef = React.useRef()
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map
     console.log("LOADED MAP")
+    QueryServer().then(result_json => setCrimeData(result_json))
   }, [])
 
   const panTo = React.useCallback(({ lat, lng }) => {
@@ -89,7 +91,7 @@ export default function MapView() {
         options={options}
         onLoad={onMapLoad}
       >
-        <DataPoints setSelected={setSelected} />
+        <DataPoints setSelected={setSelected} crimeData={crimeData} />
         <CrimeInfo selected={selected} setSelected={setSelected} />
 
       </GoogleMap>
@@ -169,19 +171,18 @@ function Search({ panTo }) {
   )
 }
 
-function DataPoints({ setSelected }) {
-  const points = parksData.features.map((park) =>
+function DataPoints({ setSelected, crimeData }) {
+  const points = crimeData.crimes.map((crime) =>
     <Circle
-      key={park.properties.PARK_ID}
       radius={100}
       center={{
-        lat: park.geometry.coordinates[1],
-        lng: park.geometry.coordinates[0]
+        lat: crime.location.latitude,
+        lng: crime.location.longitude
       }}
       // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
       // animation='BOUNCE'
       onClick={() => {
-        setSelected(park)
+        setSelected(crime)
       }}
     />)
   return points
@@ -191,7 +192,7 @@ function CrimeInfo({ selected, setSelected }) {
   return (
     selected ? (
       <InfoWindow
-        position={{ lat: selected.geometry.coordinates[1], lng: selected.geometry.coordinates[0] }}
+        position={{ lat: selected.location.latitude, lng: selected.location.longitude }}
         onCloseClick={() => {
           setSelected(null);
         }}
