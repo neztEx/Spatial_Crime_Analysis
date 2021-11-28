@@ -3,7 +3,9 @@ import {
   GoogleMap,
   useLoadScript,
   Marker,
+  Circle,
   InfoWindow,
+  Data,
 } from "@react-google-maps/api";
 import usePlacesAutocomplete, {
   getGeocode,
@@ -19,9 +21,9 @@ import {
 import { formatRelative } from "date-fns";
 
 import "@reach/combobox/styles.css";
-import mapStyles from "../mapStyles";
+// import mapStyles from "../mapStyles";
 import "../App.css";
-
+import * as parksData from '../mockData/mock.json'
 const libraries = ["places"];
 
 const mapContainerStyle = {
@@ -34,7 +36,7 @@ const options = {
   // styles: mapStyles,
   disableDefaultUI: true,
   zoomControl: true,
-  loca: true
+  local: true
 };
 
 const center = {
@@ -48,14 +50,17 @@ export default function MapView() {
     libraries,
   });
 
+  const [selected, setSelected] = React.useState(null);
+
+
   //we can retain state on 
   const mapRef = React.useRef()
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map
   }, [])
 
-  const panTo = React.useCallback(({lat, lng}) => {
-    mapRef.current.panTo({lat,lng})
+  const panTo = React.useCallback(({ lat, lng }) => {
+    mapRef.current.panTo({ lat, lng })
     mapRef.current.setZoom(14)
   }, [])
 
@@ -64,7 +69,8 @@ export default function MapView() {
 
   return (
     <div>
-      <Search panTo={panTo}/>
+      <Search panTo={panTo} />
+      <Locate panTo={panTo} />
 
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
@@ -72,51 +78,110 @@ export default function MapView() {
         center={center}
         options={options}
         onLoad={onMapLoad}
-      ></GoogleMap>
+      >
+        {parksData.features.map((park) => (
+          <Circle
+            key={park.properties.PARK_ID}
+            radius={100}
+            center={{
+              lat: park.geometry.coordinates[1],
+              lng: park.geometry.coordinates[0]
+            }}
+            // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
+            animation='BOUNCE'
+            onClick={()=>{
+              setSelected(park)
+            }}
+          />
+        ))}
+
+        {selected ? (
+          <InfoWindow
+            position={{ lat: selected.geometry.coordinates[1], lng: selected.geometry.coordinates[0] }}
+            onCloseClick={() => {
+              setSelected(null);
+            }}
+          >
+            <div>
+              <h4>
+                Crime
+              </h4>
+              <p>Spotted</p>
+            </div>
+          </InfoWindow>
+        ) : null}
+
+      </GoogleMap>
     </div>
   )
 }
 
+//Current Geolocation 
+function Locate({ panTo }) {
+  return <button className='locate' onClick={() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log(position)
+      panTo({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      })
+    })
+  }}>
+    <img src='compass.svg' alt='compass - locate me' />
+  </button>
+}
+
 //Search bar
-function Search({panTo}) {
-  console.log(panTo)
-  const { ready, value, suggestions: { status, data }, setValue, clearSuggestions } = usePlacesAutocomplete({
-    requestOptions: {
-      location: { lat: () => 34.0522, lng: () => -118.2437 },
-      radius: 200 * 1000, // KM
+function Search({ panTo }) {
+
+  const {
+    ready,
+    value,
+    suggestions: { status, data },
+    setValue,
+    clearSuggestions } = usePlacesAutocomplete({
+      requestOptions: {
+        location: { lat: () => 34.0522, lng: () => -118.2437 },
+        radius: 200 * 1000, // KM
+      }
+    })
+
+  const handleInput = (e) => {
+    setValue(e.target.value)
+  }
+
+  const handleSelect = async (address) => {
+    setValue(address, false)
+    clearSuggestions()
+    try {
+      const result = await getGeocode({ address })
+      console.log(result[0])
+      const { lat, lng } = await getLatLng(result[0])
+      console.log(lat, lng)
+      panTo({ lat, lng })
+    } catch (error) {
+      console.log("error!")
+      console.log(error)
     }
-  })
+  }
 
 
   return (
     <div className="search">
-      <Combobox onSelect={async (address) => {
-        setValue(address, false)
-        clearSuggestions()
-
-        try {
-          const result = await getGeocode({address})
-          console.log(result[0])
-          const {lat, lng} = await getLatLng(result[0])
-          console.log(lat, lng)
-          panTo({lat,lng})
-        } catch (error) {
-          console.log("error!")
-          console.log(error)
-        }
-        console.log(address)
-      }}>
-        <ComboboxInput value={value} onChange={(e) => {
-          setValue(e.target.value)
-        }}
+      <Combobox onSelect={handleSelect}>
+        <ComboboxInput
+          value={value}
+          onChange={handleInput}
           disabled={!ready}
           placeholder="Enter Address"
         />
         <ComboboxPopover>
-          {status == "OK" && 
-          data.map(({id, description}) => (
-          <ComboboxOption key={id} value={description}/>
-          ))}
+          <ComboboxList>
+            {status === "OK" &&
+              data.map(({ id, description }) => (
+                <ComboboxOption key={id} value={description} />
+              ))}
+          </ComboboxList>
         </ComboboxPopover>
       </Combobox>
     </div>
