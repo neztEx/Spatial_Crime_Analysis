@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   GoogleMap,
   useLoadScript,
@@ -24,6 +24,11 @@ import "@reach/combobox/styles.css";
 // import mapStyles from "../mapStyles";
 import "../App.css";
 import * as parksData from '../mockData/mock.json'
+import QueryServer from './QueryServer'
+
+
+
+
 const libraries = ["places"];
 
 const mapContainerStyle = {
@@ -52,11 +57,16 @@ export default function MapView() {
 
   const [selected, setSelected] = React.useState(null);
 
+  const makeQuery = useCallback(() => {
+
+  }, [])
+
 
   //we can retain state on 
   const mapRef = React.useRef()
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map
+    console.log("LOADED MAP")
   }, [])
 
   const panTo = React.useCallback(({ lat, lng }) => {
@@ -79,37 +89,8 @@ export default function MapView() {
         options={options}
         onLoad={onMapLoad}
       >
-        {parksData.features.map((park) => (
-          <Circle
-            key={park.properties.PARK_ID}
-            radius={100}
-            center={{
-              lat: park.geometry.coordinates[1],
-              lng: park.geometry.coordinates[0]
-            }}
-            // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
-            animation='BOUNCE'
-            onClick={()=>{
-              setSelected(park)
-            }}
-          />
-        ))}
-
-        {selected ? (
-          <InfoWindow
-            position={{ lat: selected.geometry.coordinates[1], lng: selected.geometry.coordinates[0] }}
-            onCloseClick={() => {
-              setSelected(null);
-            }}
-          >
-            <div>
-              <h4>
-                Crime
-              </h4>
-              <p>Spotted</p>
-            </div>
-          </InfoWindow>
-        ) : null}
+        <DataPoints setSelected={setSelected} />
+        <CrimeInfo selected={selected} setSelected={setSelected} />
 
       </GoogleMap>
     </div>
@@ -185,5 +166,43 @@ function Search({ panTo }) {
         </ComboboxPopover>
       </Combobox>
     </div>
+  )
+}
+
+function DataPoints({ setSelected }) {
+  const points = parksData.features.map((park) =>
+    <Circle
+      key={park.properties.PARK_ID}
+      radius={100}
+      center={{
+        lat: park.geometry.coordinates[1],
+        lng: park.geometry.coordinates[0]
+      }}
+      // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
+      // animation='BOUNCE'
+      onClick={() => {
+        setSelected(park)
+      }}
+    />)
+  return points
+}
+
+function CrimeInfo({ selected, setSelected }) {
+  return (
+    selected ? (
+      <InfoWindow
+        position={{ lat: selected.geometry.coordinates[1], lng: selected.geometry.coordinates[0] }}
+        onCloseClick={() => {
+          setSelected(null);
+        }}
+      >
+        <div>
+          <h4>
+            Crime
+          </h4>
+          <p>Spotted</p>
+        </div>
+      </InfoWindow>
+    ) : null
   )
 }
