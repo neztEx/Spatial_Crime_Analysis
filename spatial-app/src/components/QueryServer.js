@@ -7,7 +7,7 @@ export const QueryServer = async() => {
 }
 
 export const location = async function(city) {
-    const url = `http://0.0.0.0:5432/location_based_query/${city}`
+    const url = `http://0.0.0.0:5432/location_based_query?location=${city}`
     console.log(url)
     let fetched_json = fetch(url)
     .then(res => res.json())

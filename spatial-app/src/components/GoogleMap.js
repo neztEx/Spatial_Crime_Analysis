@@ -175,11 +175,11 @@ function DataPoints({ setSelected, crimeData }) {
   if (crimeData) {
     const points = crimeData.map((crime) =>
       <Circle
-        key={crime.DR_NO}
+        key={crime.crime_id}
         radius={100}
         center={{
-          lat: crime.LAT,
-          lng: crime.LON
+          lat: crime.latitude,
+          lng: crime.longitude
         }}
         // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
         // animation='BOUNCE'
@@ -196,7 +196,7 @@ function DataPoints({ setSelected, crimeData }) {
 function HeatMap(crimeData) {
   if (crimeData) {
     const points = crimeData.map((crime) => {
-      return new window.google.maps.LatLng(crime.LAT, crime.LON)
+      return new window.google.maps.LatLng(crime.latitude, crime.longitude)
     })
     return points
   }
@@ -207,7 +207,7 @@ function CrimeInfo({ selected, setSelected }) {
   return (
     selected ? (
       <InfoWindow
-        position={{ lat: selected.LAT, lng: selected.LON }}
+        position={{ lat: selected.latitude, lng: selected.longitude }}
         onCloseClick={() => {
           setSelected(null);
         }}

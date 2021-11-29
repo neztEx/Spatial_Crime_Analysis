@@ -119,7 +119,7 @@ def __location_based_query_helper(crime_data, location):
         Loads the crime data on location basis
     """
     logger.info("Running Location Query...")
-    location_query_results = crime_data.where(crime_data.location == location)
+    location_query_results = crime_data.where(crime_data.area_name == location)
     location_query_results.show(10)
     return location_query_results
 

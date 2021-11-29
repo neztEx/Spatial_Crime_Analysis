@@ -41,8 +41,6 @@ function Visualizations() {
 
   const [queryUpdated, setQueryUpdated] = React.useState(false);
   const [data, setData] = useState([])
-  // const [allData, setAllData] = useState([])
-  // const [filteredData, setFilteredData] = useState([])
   const [area, setArea] = useState("All Areas")
   const [race, setRace] = useState("All")
   const [mapLayer, setMapLayer] = useState("Data Points")
@@ -65,13 +63,16 @@ function Visualizations() {
   const onQueryChange = React.useEffect(() => {
     switch(queryType){
       case 'location':
-        QueryServer.location("LOS ANGELES").then(result_json => setData(result_json))
+        QueryServer.location(area).then(result_json => setData(result_json))
         break;
       default:
-        QueryServer.location("LOS ANGELES").then(result_json => setData(result_json))
+        QueryServer.location(area).then(result_json => setData(result_json))
     }
-  }, [queryUpdated])
+  }, [area])
 
+  const onDataChange = React.useEffect(() => {
+    console.log(data)
+  }, [data])
   const handleChange = (selectedOption) => {
     setQueryType(selectedOption);
   }
