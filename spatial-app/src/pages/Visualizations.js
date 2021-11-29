@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import '../App.css'
 import MapView from '../components/GoogleMap';
-import Switch from "react-switch";
 import { Container, Grid, CssBaseline } from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
 import { useMediaQuery } from "@material-ui/core"
@@ -32,36 +31,15 @@ function Visualizations() {
       }),
     [prefersDarkMode]
   )
-  const [heatMap, setheatMap] = React.useState(false);
-
-  const [crimeData, setCrimeData] = React.useState([])
-
-  const [queryType, setQueryType] = React.useState("location");
-
-  const [queryUpdated, setQueryUpdated] = React.useState(false);
+  
 
   const options = [
     {value: 'location', label: 'Location' }
   ]
-
-  const onSelectChange = React.useEffect(() => {
-    setQueryUpdated(!queryUpdated);
-  }, [queryType])
-
-  const onQueryChange = React.useEffect(() => {
-    switch(queryType){
-      case 'location':
-        QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
-        break;
-      default:
-        QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
-    }
-  }, [queryUpdated])
-
-  const handleChange = (selectedOption) => {
-    setQueryType(selectedOption);
-  }
   
+  const [queryType, setQueryType] = React.useState("location");
+
+  const [queryUpdated, setQueryUpdated] = React.useState(false);
   const [data, setData] = useState([])
   // const [allData, setAllData] = useState([])
   // const [filteredData, setFilteredData] = useState([])
@@ -78,6 +56,25 @@ function Visualizations() {
   const [crimeType, setCrimeType] = useState("ALL CRIME TYPES")
   const raceArr = Object.keys(raceDict)
   const headerRef = useRef()
+
+
+  const onSelectChange = React.useEffect(() => {
+    setQueryUpdated(!queryUpdated);
+  }, [queryType])
+
+  const onQueryChange = React.useEffect(() => {
+    switch(queryType){
+      case 'location':
+        QueryServer.location("LOS ANGELES").then(result_json => setData(result_json))
+        break;
+      default:
+        QueryServer.location("LOS ANGELES").then(result_json => setData(result_json))
+    }
+  }, [queryUpdated])
+
+  const handleChange = (selectedOption) => {
+    setQueryType(selectedOption);
+  }
 
   return (
     // <div>
@@ -197,7 +194,7 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            <MapView heatMap={heatMap} />
+            <MapView heatMap={mapLayer} crimeData={data} />
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             <Analysis
               data={data}

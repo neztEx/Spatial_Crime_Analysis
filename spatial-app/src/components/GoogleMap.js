@@ -87,7 +87,7 @@ export default function MapView({heatMap, crimeData}) {
         options={options}
         onLoad={onMapLoad}
       >
-        {heatMap ?
+        {heatMap==='Heat Map' ?
           <HeatmapLayer data={HeatMap(crimeData)} /> :
           <div>
             <DataPoints setSelected={setSelected} crimeData={crimeData} />
