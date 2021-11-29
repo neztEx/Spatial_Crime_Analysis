@@ -30,8 +30,8 @@ import * as QueryServer from './QueryServer'
 const libraries = ["places", "visualization"];
 
 const mapContainerStyle = {
-  height: "70vh",
-  width: "100vw",
+  height: "100vh",
+  width: "100%",
 };
 
 // customize styles
@@ -47,7 +47,7 @@ const center = {
   lng: -118.2437,
 };
 
-export default function MapView({heatMap}) {
+export default function MapView({ heatMap }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -75,26 +75,25 @@ export default function MapView({heatMap}) {
   if (!isLoaded) return "Loading...";
 
   return (
-    <div>
-      <Search panTo={panTo} />
-      <Locate panTo={panTo} />
-
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        zoom={11}
-        center={center}
-        options={options}
-        onLoad={onMapLoad}
-      >
-        {heatMap ?
-          <HeatmapLayer data={HeatMap(crimeData)}/>:
-          <div>
+    <>
+    <Search panTo={panTo} />
+    <Locate panTo={panTo} />
+    
+    <GoogleMap
+      mapContainerStyle={mapContainerStyle}
+      zoom={11}
+      center={center}
+      options={options}
+      onLoad={onMapLoad}
+    >
+      {heatMap ?
+        <HeatmapLayer data={HeatMap(crimeData)} /> :
+        <div>
           <DataPoints setSelected={setSelected} crimeData={crimeData} />
           <CrimeInfo selected={selected} setSelected={setSelected} />
-          </div>
-        }
-      </GoogleMap>
-    </div>
+        </div>}
+    </GoogleMap>
+    </>
   )
 }
 
@@ -194,7 +193,7 @@ function DataPoints({ setSelected, crimeData }) {
 
 function HeatMap(crimeData) {
   if (crimeData) {
-    const points = crimeData.map((crime) => { 
+    const points = crimeData.map((crime) => {
       return new window.google.maps.LatLng(crime.LAT, crime.LON)
     })
     return points
