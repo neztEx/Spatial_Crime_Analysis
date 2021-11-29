@@ -6,8 +6,9 @@ import { Container, Grid, CssBaseline } from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
 import { useMediaQuery } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
+import { Analysis } from "../components/Analysis"
 
-import { areaNameArr, raceDict, genderArr, crimeTypeArr } from "../components/Arr"
+import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr } from "../components/Arr"
 import SelectRaceComp from "../components/SelectRaceComp"
 import SelectComp from "../components/SelectComp"
 
@@ -35,6 +36,7 @@ function Visualizations() {
   // const [filteredData, setFilteredData] = useState([])
   const [area, setArea] = useState("All Areas")
   const [race, setRace] = useState("All")
+  const [mapLayer, setMapLayer] = useState("Data Points")
   const [age, setAge] = useState([0, 99])
   const [hour, setHour] = useState([0, 24])
   const [gender, setGender] = useState("All")
@@ -51,7 +53,7 @@ function Visualizations() {
     //   <MapView heatMap={heatMap} />
     //   <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/>
     // </div>
-    <div style={{ width: "auto", height: "90vh",overflow: "hidden" }}>
+    <div style={{ width: "auto", height: "auto", overflow: "hidden" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Grid
@@ -122,10 +124,12 @@ function Visualizations() {
                     setFoo={setGender}
                   />
                 </Grid>
-                <Grid item xs={6}>
-                  <Switch onChange={(checked) => {
-                    setheatMap(checked)
-                  }} checked={heatMap}
+                <Grid item xs={12}>
+                  <SelectComp
+                    title={"Map Layers"}
+                    arr={mapLayerArr}
+                    foo={mapLayer}
+                    setFoo={setMapLayer}
                   />
                 </Grid>
               </Grid>
@@ -148,6 +152,7 @@ function Visualizations() {
               /> */}
               {/* <Resources /> */}
               {/* <Footer headerRef={headerRef} /> */}
+
             </Container>
           </Grid>
 
@@ -163,6 +168,13 @@ function Visualizations() {
           >
             <MapView heatMap={heatMap} />
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
+            <Analysis
+              data={data}
+              area={area}
+              race={race}
+              gender={gender}
+              crimeType={crimeType}
+            />
           </Grid>
         </Grid>
       </ThemeProvider>

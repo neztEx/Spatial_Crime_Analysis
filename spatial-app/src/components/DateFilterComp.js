@@ -45,7 +45,7 @@ export const DateFilterComp = ({
             alignItems: "center"
           }}
         >
-          <div
+          {/* <div
             style={{
               fontSize: 16,
               marginLeft: 10,
@@ -89,7 +89,7 @@ export const DateFilterComp = ({
             onClick={() => setSelectedStartDate(getLastWeek())}
           >
             1w
-          </div>
+          </div> */}
         </div>
       </div>
       <Grid container spacing={2}>
