@@ -6,6 +6,7 @@ import {
   Circle,
   InfoWindow,
   Data,
+  HeatmapLayer,
 } from "@react-google-maps/api";
 import usePlacesAutocomplete, {
   getGeocode,
@@ -25,7 +26,8 @@ import "@reach/combobox/styles.css";
 import "../App.css";
 import * as QueryServer from './QueryServer'
 
-const libraries = ["places"];
+
+const libraries = ["places", "visualization"];
 
 const mapContainerStyle = {
   height: "70vh",
@@ -49,11 +51,12 @@ export default function MapView() {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
+
   });
 
   const [selected, setSelected] = React.useState(null);
 
-  const [crimeData, setCrimeData] = React.useState(null)
+  const [crimeData, setCrimeData] = React.useState([])
 
   //we can retain state on 
   const mapRef = React.useRef()
@@ -61,7 +64,6 @@ export default function MapView() {
     mapRef.current = map
     console.log("LOADED MAP")
     QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
-    console.log(crimeData)
   }, [])
 
   const panTo = React.useCallback(({ lat, lng }) => {
@@ -84,8 +86,9 @@ export default function MapView() {
         options={options}
         onLoad={onMapLoad}
       >
-        <DataPoints setSelected={setSelected} crimeData={crimeData} />
-        <CrimeInfo selected={selected} setSelected={setSelected} />
+        <HeatmapLayer data={HeatMap(crimeData)}/>
+        {/* <DataPoints setSelected={setSelected} crimeData={crimeData} /> */}
+        {/* <CrimeInfo selected={selected} setSelected={setSelected} /> */}
 
       </GoogleMap>
     </div>
@@ -165,7 +168,6 @@ function Search({ panTo }) {
 }
 
 function DataPoints({ setSelected, crimeData }) {
-  console.log(crimeData)
   if (crimeData) {
     const points = crimeData.map((crime) =>
       <Circle
@@ -185,6 +187,16 @@ function DataPoints({ setSelected, crimeData }) {
     return points
   }
   else return null
+}
+
+function HeatMap(crimeData) {
+  if (crimeData) {
+    const points = crimeData.map((crime) => { 
+      return new window.google.maps.LatLng(crime.LAT, crime.LON)
+    })
+    return points
+  }
+  else return []
 }
 
 function CrimeInfo({ selected, setSelected }) {
