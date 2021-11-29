@@ -47,7 +47,7 @@ const center = {
   lng: -118.2437,
 };
 
-export default function MapView() {
+export default function MapView({heatMap}) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -86,10 +86,13 @@ export default function MapView() {
         options={options}
         onLoad={onMapLoad}
       >
-        <HeatmapLayer data={HeatMap(crimeData)}/>
-        {/* <DataPoints setSelected={setSelected} crimeData={crimeData} /> */}
-        {/* <CrimeInfo selected={selected} setSelected={setSelected} /> */}
-
+        {heatMap ?
+          <HeatmapLayer data={HeatMap(crimeData)}/>:
+          <div>
+          <DataPoints setSelected={setSelected} crimeData={crimeData} />
+          <CrimeInfo selected={selected} setSelected={setSelected} />
+          </div>
+        }
       </GoogleMap>
     </div>
   )

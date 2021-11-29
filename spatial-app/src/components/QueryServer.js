@@ -10,6 +10,7 @@ export const location = async function(city) {
     const url = `http://0.0.0.0:5432/location_based_query/${city}`
     console.log(url)
     let fetched_json = fetch(url)
-    .then(res => res.json());
+    .then(res => res.json())
+    .catch(res => {});
     return await fetched_json;
 }
