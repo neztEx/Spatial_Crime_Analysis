@@ -16,6 +16,8 @@ import pink from "@material-ui/core/colors/pink"
 import cyan from "@material-ui/core/colors/cyan"
 
 
+import * as QueryServer from '../components/QueryServer'
+
 
 function Visualizations() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: light)")
@@ -31,6 +33,35 @@ function Visualizations() {
     [prefersDarkMode]
   )
   const [heatMap, setheatMap] = React.useState(false);
+
+  const [crimeData, setCrimeData] = React.useState([])
+
+  const [queryType, setQueryType] = React.useState("location");
+
+  const [queryUpdated, setQueryUpdated] = React.useState(false);
+
+  const options = [
+    {value: 'location', label: 'Location' }
+  ]
+
+  const onSelectChange = React.useEffect(() => {
+    setQueryUpdated(!queryUpdated);
+  }, [queryType])
+
+  const onQueryChange = React.useEffect(() => {
+    switch(queryType){
+      case 'location':
+        QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
+        break;
+      default:
+        QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
+    }
+  }, [queryUpdated])
+
+  const handleChange = (selectedOption) => {
+    setQueryType(selectedOption);
+  }
+  
   const [data, setData] = useState([])
   // const [allData, setAllData] = useState([])
   // const [filteredData, setFilteredData] = useState([])

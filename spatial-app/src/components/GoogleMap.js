@@ -24,7 +24,6 @@ import { formatRelative } from "date-fns";
 import "@reach/combobox/styles.css";
 // import mapStyles from "../mapStyles";
 import "../App.css";
-import * as QueryServer from './QueryServer'
 
 
 const libraries = ["places", "visualization"];
@@ -51,7 +50,7 @@ const center = {
   lng: -118.2437,
 };
 
-export default function MapView({ heatMap }) {
+export default function MapView({heatMap, crimeData}) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -60,14 +59,12 @@ export default function MapView({ heatMap }) {
 
   const [selected, setSelected] = React.useState(null);
 
-  const [crimeData, setCrimeData] = React.useState([])
 
   //we can retain state on 
   const mapRef = React.useRef()
   const onMapLoad = React.useCallback((map) => {
     mapRef.current = map
     console.log("LOADED MAP")
-    QueryServer.location("LOS ANGELES").then(result_json => setCrimeData(result_json))
   }, [])
 
   const panTo = React.useCallback(({ lat, lng }) => {
