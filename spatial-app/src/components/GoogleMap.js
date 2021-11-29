@@ -29,8 +29,12 @@ import "../App.css";
 const libraries = ["places", "visualization"];
 
 const mapContainerStyle = {
-  height: "70vh",
-  width: "100vw",
+  height: "75vh",
+  width: "100%",
+  position: "absolute",
+  top: "5rem",
+  maxWidth: "inherit"
+  // need to add max-width: inherit
 };
 
 // customize styles
@@ -72,7 +76,7 @@ export default function MapView({heatMap, crimeData}) {
   if (!isLoaded) return "Loading...";
 
   return (
-    <div>
+    <>
       <Search panTo={panTo} />
       <Locate panTo={panTo} />
 
@@ -84,14 +88,14 @@ export default function MapView({heatMap, crimeData}) {
         onLoad={onMapLoad}
       >
         {heatMap ?
-          <HeatmapLayer data={HeatMap(crimeData)}/>:
+          <HeatmapLayer data={HeatMap(crimeData)} /> :
           <div>
-          <DataPoints setSelected={setSelected} crimeData={crimeData} />
-          <CrimeInfo selected={selected} setSelected={setSelected} />
-          </div>
-        }
+            <DataPoints setSelected={setSelected} crimeData={crimeData} />
+            <CrimeInfo selected={selected} setSelected={setSelected} />
+          </div>}
       </GoogleMap>
-    </div>
+
+    </>
   )
 }
 
@@ -191,7 +195,7 @@ function DataPoints({ setSelected, crimeData }) {
 
 function HeatMap(crimeData) {
   if (crimeData) {
-    const points = crimeData.map((crime) => { 
+    const points = crimeData.map((crime) => {
       return new window.google.maps.LatLng(crime.LAT, crime.LON)
     })
     return points
