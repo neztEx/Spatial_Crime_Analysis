@@ -51,7 +51,7 @@ function Visualizations() {
     //   <MapView heatMap={heatMap} />
     //   <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/>
     // </div>
-    <div style={{ width: "auto", height: "auto",overflow: "hidden" }}>
+    <div style={{ width: "auto", height: "90vh",overflow: "hidden" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Grid

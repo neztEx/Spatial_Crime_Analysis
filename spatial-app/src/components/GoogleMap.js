@@ -30,8 +30,12 @@ import * as QueryServer from './QueryServer'
 const libraries = ["places", "visualization"];
 
 const mapContainerStyle = {
-  height: "100vh",
+  height: "75vh",
   width: "100%",
+  position: "absolute",
+  top: "5rem",
+  maxWidth: "inherit"
+  // need to add max-width: inherit
 };
 
 // customize styles
@@ -76,23 +80,24 @@ export default function MapView({ heatMap }) {
 
   return (
     <>
-    <Search panTo={panTo} />
-    <Locate panTo={panTo} />
-    
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      zoom={11}
-      center={center}
-      options={options}
-      onLoad={onMapLoad}
-    >
-      {heatMap ?
-        <HeatmapLayer data={HeatMap(crimeData)} /> :
-        <div>
-          <DataPoints setSelected={setSelected} crimeData={crimeData} />
-          <CrimeInfo selected={selected} setSelected={setSelected} />
-        </div>}
-    </GoogleMap>
+      <Search panTo={panTo} />
+      <Locate panTo={panTo} />
+
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        zoom={11}
+        center={center}
+        options={options}
+        onLoad={onMapLoad}
+      >
+        {heatMap ?
+          <HeatmapLayer data={HeatMap(crimeData)} /> :
+          <div>
+            <DataPoints setSelected={setSelected} crimeData={crimeData} />
+            <CrimeInfo selected={selected} setSelected={setSelected} />
+          </div>}
+      </GoogleMap>
+
     </>
   )
 }
