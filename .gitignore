@@ -153,3 +153,4 @@ dataset/
 **/*.icloud
 **/package-lock.json
 **/manifest.json
+**/.DS_Store
