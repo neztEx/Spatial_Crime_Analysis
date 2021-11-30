@@ -154,9 +154,9 @@ def __date_based_query_helper(self, crime_data, start_date, end_date):
     """
     logger.info("Running Year Query...")
     if start_date is None:
-        start_date = "01/01/2010"
+        start_date = "1262304000"
     if end_date is None:
-        end_date = "12/31/2021"
+        end_date = str(datetime.datetime.now().timestamp()).split(".")[0]
     # start_time = time.time()
     crime_data.createOrReplaceTempView("crime_data")
     query = "select * from crime_data where timestamp between '{0}' and '{1}'".format(start_date, end_date)
