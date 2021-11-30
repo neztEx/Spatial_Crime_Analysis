@@ -15,11 +15,11 @@ def area_based_query():
     query_results = query_engine.__area_based_query(request.args.get('area_name'))
     return json.dumps(query_results)
 
-@main.route("/year_based_query", methods=["GET"])
-def year_based_query():
+@main.route("/date_based_query", methods=["GET"])
+def date_based_query():
     logger.debug(" crime data between {0} and  {1} loading....".format(request.args.get('start_date'),
                                                                        request.args.get('end_date')))
-    query_results = query_engine.__year_based_query(request.args.get('start_date'), request.args.get('end_date'))
+    query_results = query_engine.__date_based_query(request.args.get('start_date'), request.args.get('end_date'))
     return json.dumps(query_results)
 
 @main.route("/day_part_based_query", methods=["GET"])
