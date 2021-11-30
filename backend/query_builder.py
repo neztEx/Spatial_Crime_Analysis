@@ -61,7 +61,9 @@ class QueryEngine:
             "LAT",
             "LON"
         )
-        # self.crime_data = self.crime_data.repartition(16)
+        self.crime_data = self.crime_data.repartition(16)
+        self.crime_data.write.parquet("crime_data.parquet")
+        self.crime_data = self.sql_context.read.parquet("crime_data.parquet")
         logger.info(self.crime_data.rdd.getNumPartitions())
         logger.info("Preprocessing the data...")
         self.__preprocess_data()
@@ -191,6 +193,7 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
     """
     logger.info("Running Aggregate Query...")
     self.crime_data.createOrReplaceTempView("crime_data")
+    start_time = time.time()
     query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
             "(timestamp between '{2}' and '{3}') and " \
             "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
@@ -198,6 +201,7 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
         .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
     logger.info("Running :- {}".format(query))
     query_results = self.sql_context.sql(query)
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
     response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
     return response
 
