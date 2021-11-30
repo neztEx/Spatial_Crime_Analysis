@@ -9,7 +9,6 @@ def init_spark_context():
     conf = SparkConf().setAppName("Spatial-Crime-Analysis")
     # IMPORTANT: pass aditional Python modules to each worker
     sc = SparkContext(conf=conf, pyFiles=['query_builder.py', 'app.py'])
-
     return sc
 
 

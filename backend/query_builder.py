@@ -1,6 +1,7 @@
 import json
 import os
 import logging
+import time
 
 from pyspark import SQLContext
 import pyspark.sql.functions as f
@@ -22,7 +23,6 @@ class QueryEngine:
         logger.info("Starting up the Query Engine: ")
 
         self.sc = sc
-
         # Load crime data for later use
         logger.info("Loading Crime data...")
         self.sql_context = SQLContext(sc)
@@ -60,6 +60,8 @@ class QueryEngine:
             "LAT",
             "LON"
         )
+        # self.crime_data = self.crime_data.repartition(16)
+        logger.info(self.crime_data.rdd.getNumPartitions())
         logger.info("Preprocessing the data...")
         self.__preprocess_data()
 
@@ -79,7 +81,7 @@ class QueryEngine:
             part_of_the_day = "night"
         crime_id = data_object.DR_NO
         date_reported = data_object.Date_Rptd
-        date_occurred = data_object.DATE_OCC
+        date_occurred = data_object.DATE_OCC[0: 10]
         time_occurred = data_object.TIME_OCC
         area = data_object.AREA
         area_name = data_object.AREA_NAME
@@ -91,9 +93,10 @@ class QueryEngine:
         latitude = data_object.LAT
         longitude = data_object.LON
         month = data_object.DATE_OCC[0: 2]
+        race = data_object.Vict_Descent
 
         return (crime_id, date_reported, date_occurred, time_occurred, part_of_the_day, area, area_name, age, sex,
-                crime_type_id, crime_type, location, latitude, longitude, month)
+                crime_type_id, crime_type, location, latitude, longitude, month, race)
 
     def __preprocess_data(self):
         """
@@ -103,64 +106,99 @@ class QueryEngine:
             self.crime_data = self.crime_data.rdd.map(lambda x: QueryEngine.__map_function(x)). \
                 toDF(["crime_id", "date_reported", "date_occurred", "time_occurred", "part_of_the_day", "area",
                       "area_name", "age", "sex",
-                      "crime_type_id", "crime_type", "location", "latitude", "longitude", "month"])
-            self.crime_data.show(10)
-
-def __location_based_query(self, location):
-    """
-        Helper function on location based query
-    """
-    logger.info("Executing Location Query...")
-    return __location_based_query_helper(self.crime_data, location)
+                      "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "race"])
+        logger.info(self.crime_data.columns)
+        self.crime_data.show(10)
 
 
-def __location_based_query_helper(crime_data, location):
+def __area_based_query(self, area_name):
     """
-        Loads the crime data on location basis
+        Helper function on area based query
     """
-    logger.info("Running Location Query...")
-    location_query_results = crime_data.where(crime_data.area_name == location)
-    location_query_results.show(10)
-    return location_query_results
+    logger.info("Executing Area Query...")
+    query_results = __area_based_query_helper(self, self.crime_data, area_name)
+    response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    return response
 
-def __year_based_query(self, start_year, end_year):
+
+def __area_based_query_helper(self, crime_data, area_name):
+    """
+        Loads the crime data on area basis
+    """
+    logger.info("Running Area Query...")
+    crime_data.createOrReplaceTempView("crime_data")
+    query = "select * from crime_data where area_name = '{0}' or '{1}' = 'all'".format(area_name, area_name)
+    logger.info("Running :- {}".format(query))
+    area_query_results = self.sql_context.sql(query)
+    area_query_results.show(10)
+    return area_query_results
+
+
+def __year_based_query(self, start_date, end_date):
     """
         Helper function on year based query
     """
     logger.info("Executing Year Query...")
-    return __year_based_query_helper(self.crime_data, start_year, end_year)
+    query_results = __year_based_query_helper(self, self.crime_data, start_date, end_date)
+    response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    return response
 
-def __year_based_query_helper(crime_data, start_year, end_year):
+
+def __year_based_query_helper(self, crime_data, start_date, end_date):
     """
         Loads the crime data on year basis
     """
     logger.info("Running Year Query...")
-    if start_year is None:
-        start_year = "2010"
-    if end_year is None:
-        end_year = "2021"
-    year_query_results = crime_data.where((start_year <= f.substring(crime_data.date_occurred, 7, 4)) &
-                                               (f.substring(crime_data.date_occurred, 7, 4) <= end_year))
-    year_query_results.show(10)
+    if start_date is None:
+        start_date = "01/01/2010"
+    if end_date is None:
+        end_date = "12/31/2021"
+    # start_time = time.time()
+    crime_data.createOrReplaceTempView("crime_data")
+    query = "select * from crime_data where date_occurred between '{0}' and '{1}'".format(start_date, end_date)
+    logger.info("Running :- {}".format(query))
+    year_query_results = self.sql_context.sql(query)
+    # logger.info("--- %s seconds ---" % (time.time() - start_time))
     return year_query_results
 
-def __generic_attribute_query(self, start_year, end_year, location, grouping_attribue):
+
+def __generic_attribute_query(self, start_date, end_date, area_name, grouping_attribute):
     """
         Loads the crime data grouping on different attributes
     """
-    logger.info("Running {} Query...".format(grouping_attribue))
-    day_part_query_results = self.crime_data
+    logger.info("Running {} Query...".format(grouping_attribute))
+    query_results = self.crime_data
 
-    if start_year is not None or end_year is not None:
-        day_part_query_results = __year_based_query_helper(day_part_query_results, start_year, end_year)
-    if location is not None:
-        day_part_query_results = __location_based_query_helper(day_part_query_results, location)
+    if start_date is not None or end_date is not None:
+        query_results = __year_based_query_helper(self, query_results, start_date, end_date)
+    if area_name is not None:
+        query_results = __area_based_query_helper(self, query_results, area_name)
 
-    part_of_the_day_query_results = day_part_query_results.groupBy(grouping_attribue).count()
-    part_of_the_day_query_results.show()
-    return part_of_the_day_query_results
+    final_query_results = query_results.groupBy(grouping_attribute).agg(f.collect_list(f.struct("crime_type",
+                                                                                                "latitude",
+                                                                                                "longitude")))
+    response = final_query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    return response
 
 
-QueryEngine.__location_based_query = __location_based_query
+def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gender, race):
+    """
+        Aggregate Query based on area_name, start_date, end_date, type_of_crime, gender, race
+    """
+    logger.info("Running Aggregate Query...")
+    self.crime_data.createOrReplaceTempView("crime_data")
+    query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
+            "(date_occurred between '{2}' and '{3}') and " \
+            "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
+            "(race = '{6}' or '{6}' = 'all')" \
+        .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
+    logger.info("Running :- {}".format(query))
+    query_results = self.sql_context.sql(query)
+    response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    return response
+
+
+QueryEngine.__area_based_query = __area_based_query
 QueryEngine.__year_based_query = __year_based_query
 QueryEngine.__generic_attribute_query = __generic_attribute_query
+QueryEngine.__aggregate_query = __aggregate_query
