@@ -50,7 +50,7 @@ const center = {
   lng: -118.2437,
 };
 
-export default function MapView({heatMap, crimeData}) {
+function MapView({heatMap, crimeData}) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -225,3 +225,5 @@ function CrimeInfo({ selected, setSelected }) {
     ) : null
   )
 }
+
+export default React.memo(MapView)
