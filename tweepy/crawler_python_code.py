@@ -94,4 +94,4 @@ def userSearch():
   streamingAPI = tweepy.streaming.Stream(auth, CustomStreamListener(), tweet_mode= 'extended', allow_retweets=False)
   streamingAPI.filter(follow=userIDList, is_async=True)
 
-userSearch()
+wordSearch()
