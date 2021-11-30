@@ -2,6 +2,7 @@ import json
 import os
 import logging
 import time
+import datetime
 
 from pyspark import SQLContext
 import pyspark.sql.functions as f
@@ -94,9 +95,12 @@ class QueryEngine:
         longitude = data_object.LON
         month = data_object.DATE_OCC[0: 2]
         race = data_object.Vict_Descent
+        # generating timestamp
+        date_time = datetime.datetime(int(data_object.DATE_OCC[6: 10]), int(data_object.DATE_OCC[0: 2]), int(data_object.DATE_OCC[3: 5]))
+        timestamp = str(time.mktime(date_time.timetuple())).split('.')[0]
 
         return (crime_id, date_reported, date_occurred, time_occurred, part_of_the_day, area, area_name, age, sex,
-                crime_type_id, crime_type, location, latitude, longitude, month, race)
+                crime_type_id, crime_type, location, latitude, longitude, month, race, timestamp)
 
     def __preprocess_data(self):
         """
@@ -106,7 +110,7 @@ class QueryEngine:
             self.crime_data = self.crime_data.rdd.map(lambda x: QueryEngine.__map_function(x)). \
                 toDF(["crime_id", "date_reported", "date_occurred", "time_occurred", "part_of_the_day", "area",
                       "area_name", "age", "sex",
-                      "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "race"])
+                      "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "race", "timestamp"])
         logger.info(self.crime_data.columns)
         self.crime_data.show(10)
 
@@ -134,17 +138,17 @@ def __area_based_query_helper(self, crime_data, area_name):
     return area_query_results
 
 
-def __year_based_query(self, start_date, end_date):
+def __date_based_query(self, start_date, end_date):
     """
         Helper function on year based query
     """
     logger.info("Executing Year Query...")
-    query_results = __year_based_query_helper(self, self.crime_data, start_date, end_date)
+    query_results = __date_based_query_helper(self, self.crime_data, start_date, end_date)
     response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
     return response
 
 
-def __year_based_query_helper(self, crime_data, start_date, end_date):
+def __date_based_query_helper(self, crime_data, start_date, end_date):
     """
         Loads the crime data on year basis
     """
@@ -155,7 +159,7 @@ def __year_based_query_helper(self, crime_data, start_date, end_date):
         end_date = "12/31/2021"
     # start_time = time.time()
     crime_data.createOrReplaceTempView("crime_data")
-    query = "select * from crime_data where date_occurred between '{0}' and '{1}'".format(start_date, end_date)
+    query = "select * from crime_data where timestamp between '{0}' and '{1}'".format(start_date, end_date)
     logger.info("Running :- {}".format(query))
     year_query_results = self.sql_context.sql(query)
     # logger.info("--- %s seconds ---" % (time.time() - start_time))
@@ -170,7 +174,7 @@ def __generic_attribute_query(self, start_date, end_date, area_name, grouping_at
     query_results = self.crime_data
 
     if start_date is not None or end_date is not None:
-        query_results = __year_based_query_helper(self, query_results, start_date, end_date)
+        query_results = __date_based_query_helper(self, query_results, start_date, end_date)
     if area_name is not None:
         query_results = __area_based_query_helper(self, query_results, area_name)
 
@@ -188,7 +192,7 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
     logger.info("Running Aggregate Query...")
     self.crime_data.createOrReplaceTempView("crime_data")
     query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
-            "(date_occurred between '{2}' and '{3}') and " \
+            "(timestamp between '{2}' and '{3}') and " \
             "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
             "(race = '{6}' or '{6}' = 'all')" \
         .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
@@ -199,6 +203,6 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
 
 
 QueryEngine.__area_based_query = __area_based_query
-QueryEngine.__year_based_query = __year_based_query
+QueryEngine.__date_based_query = __date_based_query
 QueryEngine.__generic_attribute_query = __generic_attribute_query
 QueryEngine.__aggregate_query = __aggregate_query
