@@ -9,10 +9,8 @@ import debounce from "lodash.debounce"
 
 export default function DatePicker({ selectedDate, setSelectedDate, label }) {
   const handleDateChange = debounce((item) => {
-    console.log("i fired...")
-    const result = format(item, 'MM/dd/yyyy')
-    console.log(result)
-    setSelectedDate(result)
+    console.log("i fired...",item)
+    setSelectedDate(item)
   }, 2000)
 
   return (

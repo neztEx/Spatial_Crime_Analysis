@@ -1,3 +1,4 @@
+import {format} from "date-fns"
 
 //Syntax for use QueryServer.then(fetched_json => <your code>)
 export const QueryServer = async() => {
@@ -16,7 +17,9 @@ export const location = async function(city) {
 }
 
 export const generic = async function(area, start_date, end_date, type_of_crime, gender, race ) {
-    const url = `http://0.0.0.0:5432/aggregate_query?area_name=${area=='All Areas'?'all':area}&start_date=${start_date}&end_date=${end_date}&type_of_crime=${type_of_crime=='ALL CRIME TYPES'?'all':type_of_crime}&gender=${gender=='All'?'all':gender}&race=${race=='All'?'all':race}`
+    const start_timeStamp = format(start_date, 't')
+    const end_timeStamp = format(end_date, 't')
+    const url = `http://0.0.0.0:5432/aggregate_query?area_name=${area=='All Areas'?'all':area}&start_date=${start_timeStamp}&end_date=${end_timeStamp}&type_of_crime=${type_of_crime=='ALL CRIME TYPES'?'all':type_of_crime}&gender=${gender=='All'?'all':gender}&race=${race=='All'?'all':race}`
     console.log(url)
     let fetched_json = fetch(url)
     .then(res => res.json())
