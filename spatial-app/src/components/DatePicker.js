@@ -1,5 +1,5 @@
 import React from 'react'
-import "date-fns"
+import {format} from "date-fns"
 import DateFnsUtils from "@date-io/date-fns"
 import {
   MuiPickersUtilsProvider,
@@ -10,7 +10,9 @@ import debounce from "lodash.debounce"
 export default function DatePicker({ selectedDate, setSelectedDate, label }) {
   const handleDateChange = debounce((item) => {
     console.log("i fired...")
-    setSelectedDate(item)
+    const result = format(item, 'MM/dd/yyyy')
+    console.log(result)
+    setSelectedDate(result)
   }, 2000)
 
   return (

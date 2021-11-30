@@ -14,3 +14,12 @@ export const location = async function(city) {
     .catch(res => {});
     return await fetched_json;
 }
+
+export const generic = async function(area, start_date, end_date, type_of_crime, gender, race ) {
+    const url = `http://0.0.0.0:5432/aggregate_query?area_name=${area=='All Areas'?'all':area}&start_date=${start_date}&end_date=${end_date}&type_of_crime=${type_of_crime=='ALL CRIME TYPES'?'all':type_of_crime}&gender=${gender=='All'?'all':gender}&race=${race=='All'?'all':race}`
+    console.log(url)
+    let fetched_json = fetch(url)
+    .then(res => res.json())
+    .catch(res => {});
+    return await fetched_json;
+}

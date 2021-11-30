@@ -67,14 +67,16 @@ function Visualizations() {
   }, [queryType])
 
   const onQueryChange = React.useEffect(() => {
-    switch(queryType){
-      case 'location':
-        QueryServer.location(area).then(result_json => setData(result_json))
-        break;
-      default:
-        QueryServer.location(area).then(result_json => setData(result_json))
-    }
-  }, [area])
+    QueryServer.generic(area,selectedStartDate,selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+    
+    // switch(queryType){
+    //   case 'location':
+    //     QueryServer.location(area).then(result_json => setData(result_json))
+    //     break;
+    //   default:
+    //     QueryServer.location(area).then(result_json => setData(result_json))
+    // }
+  }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race ])
 
   const onDataChange = React.useEffect(() => {
     console.log(data)

@@ -43,9 +43,10 @@ class StdOutListener(StreamListener):
     def on_status(self, status):
         
         print("Tweet Text: "+status.text, status.place, status.coordinates)
+        print("GOT HERE")
         text = status.text
-        print("Time Stamp: "+status.created_at)
-        csvfile = open('../dataset/tweetsGeo.csv','a')
+        csvfile = open(os.path.join(os.getcwd(),'..','./dataset/tweets_new.csv'), 'a')
+
         try:
             Coords.update(status.coordinates)
             XY = (Coords.get('coordinates'))  #Place the coordinates values into a list 'XY'
@@ -58,7 +59,6 @@ class StdOutListener(StreamListener):
                 status.id_str,
                 status.id,
                 status.author.screen_name,
-                status.created_at,
                 XY[1],
                 XY[0],
                 status.text,
@@ -66,6 +66,7 @@ class StdOutListener(StreamListener):
                 ['#{}'.format(hashtag['text']) for hashtag in status.entities['hashtags']]
             ])
         except:
+            print("ERROR!!")
             #Often times users opt into 'place' which is neighborhood size polygon
             #Calculate center of polygon
             Box = status.place.bounding_box.coordinates[0]                                    
@@ -79,7 +80,6 @@ class StdOutListener(StreamListener):
                 status.id_str,
                 status.id,
                 status.author.screen_name,
-                status.created_at,
                 XY[1],
                 XY[0],
                 status.text,
