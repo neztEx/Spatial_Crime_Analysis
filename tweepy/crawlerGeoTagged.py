@@ -2,10 +2,10 @@
 # MySQLdb module written by Andy Dustman, documentation at http://mysql-python.sourceforge.net/MySQLdb.html
 # GeoSearch crawler written by Chris Cantey, MS GIS/Cartography, University of Wisconsin, https://geo-odyssey.com
 # MwSQLdb schema written with great assistance from Steve Hemmy, UW-Madison DoIT
+from keywords import crimeTypeArr
 
-
-from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
 from tweepy import Stream
 import time
 # import MySQLdb
@@ -45,7 +45,7 @@ class StdOutListener(StreamListener):
         print("Tweet Text: "+status.text, status.place, status.coordinates)
         print("GOT HERE")
         text = status.text
-        csvfile = open(os.path.join(os.getcwd(),'..','./dataset/tweets_new.csv'), 'a')
+        csvfile = open(os.path.join(os.getcwd(),'..','./dataset/tweetsGeo.csv'), 'a')
 
         try:
             Coords.update(status.coordinates)
