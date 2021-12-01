@@ -51,7 +51,7 @@ const center = {
   lng: -118.2437,
 };
 
-function MapView({ heatMap, crimeData }) {
+function MapView({ heatMap, crimeData, queryType }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -94,6 +94,11 @@ function MapView({ heatMap, crimeData }) {
             <DataPoints setSelected={setSelected} crimeData={crimeData} />
             <CrimeInfo selected={selected} setSelected={setSelected} />
           </div>}
+          
+          {queryType === 'Twitter Data' ?
+          <TwitterPoints data={twitterData} /> :
+          <></>}
+
       </GoogleMap>
 
     </>
@@ -178,46 +183,47 @@ function DataPoints({ setSelected, crimeData }) {
     const points = crimeData.map((crime) => {
       {
         return crime.race == 'H' ?
-        <Marker
-          key={crime.crime_id}
-          position={{
-            lat: crime.latitude,
-            lng: crime.longitude
-          }}
-          icon={crime.sex === 'M' ? { 
-            url: "/twitter-logoGreen.svg",
-            scaledSize: new window.google.maps.Size(20,20)
-          } :{
-          url: "/twitter-logoRed.svg",
-          scaledSize: new window.google.maps.Size(20,20)}}
-          opacity={0.5}
+          <Marker
+            key={crime.crime_id}
+            position={{
+              lat: crime.latitude,
+              lng: crime.longitude
+            }}
+            icon={crime.sex === 'M' ? {
+              url: "/twitter-logoGreen.svg",
+              scaledSize: new window.google.maps.Size(20, 20)
+            } : {
+              url: "/twitter-logoRed.svg",
+              scaledSize: new window.google.maps.Size(20, 20)
+            }}
+            opacity={0.5}
 
 
-        />
-        : <Circle
-          key={crime.crime_id}
-          radius={100}
-          center={{
-            lat: crime.latitude,
-            lng: crime.longitude
-          }}
-          options={crime.sex === 'M' ? {
-            strokeColor: "#0000FF",
-            fillColor: "#0000FF",
-            fillOpacity: 1
-          } : {
-            strokeColor: "#C71585",
-            fillColor: "#C71585",
-            fillOpacity: 1
-          }}
-          onClick={() => {
-            setSelected(crime)
-          }}
-        />
+          />
+          : <Circle
+            key={crime.crime_id}
+            radius={100}
+            center={{
+              lat: crime.latitude,
+              lng: crime.longitude
+            }}
+            options={crime.sex === 'M' ? {
+              strokeColor: "#0000FF",
+              fillColor: "#0000FF",
+              fillOpacity: 1
+            } : {
+              strokeColor: "#C71585",
+              fillColor: "#C71585",
+              fillOpacity: 1
+            }}
+            onClick={() => {
+              setSelected(crime)
+            }}
+          />
       }
     })
-  
-  return points
+
+    return points
   }
 
   else return null
@@ -231,6 +237,30 @@ function HeatMap(crimeData) {
     return points
   }
   else return []
+}
+
+function TwitterPoints(twitterData) {
+  if (twitterData) {
+    const points = crimeData.map((crime) => {
+      <Marker
+        key={crime.crime_id}
+        position={{
+          lat: crime.latitude,
+          lng: crime.longitude
+        }}
+        icon={crime.sex === 'M' ? {
+          url: "/twitter-logoGreen.svg",
+          scaledSize: new window.google.maps.Size(20, 20)
+        } : {
+          url: "/twitter-logoRed.svg",
+          scaledSize: new window.google.maps.Size(20, 20)
+        }}
+        opacity={0.5}
+      />
+    })
+    return points
+  }
+  else return null
 }
 
 function CrimeInfo({ selected, setSelected }) {
