@@ -6,6 +6,7 @@ import { ThemeProvider, createTheme } from "@material-ui/core/styles"
 import { useMediaQuery } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
 import { Analysis } from "../components/Analysis"
+import Map from '../components/Map'
 
 import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr } from "../components/Arr"
 import SelectRaceComp from "../components/SelectRaceComp"
@@ -13,30 +14,31 @@ import SelectComp from "../components/SelectComp"
 
 import pink from "@material-ui/core/colors/pink"
 import cyan from "@material-ui/core/colors/cyan"
+import blueGrey from "@material-ui/core/colors/blueGrey"
 
 
 import * as QueryServer from '../components/QueryServer'
 
 
-function Analytics() {
+function Visualizations() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: light)")
   const theme = useMemo(
     () =>
       createTheme({
         palette: {
           type: prefersDarkMode ? "dark" : "light",
-          primary: cyan,
+          primary: blueGrey,
           secondary: pink
         }
       }),
     [prefersDarkMode]
   )
-  
+
 
   const options = [
-    {value: 'location', label: 'Location' }
+    { value: 'location', label: 'Location' }
   ]
-  
+
   const [queryType, setQueryType] = React.useState("location");
 
   const [queryUpdated, setQueryUpdated] = React.useState(false);
@@ -48,9 +50,14 @@ function Analytics() {
   const [hour, setHour] = useState([0, 24])
   const [gender, setGender] = useState("All")
   const [selectedStartDate, setSelectedStartDate] = useState(
-    new Date().setMonth(new Date().getMonth() - 1)
+    new Date(2010,0,1)
   )
-  const [selectedEndDate, setSelectedEndDate] = useState(new Date(Date.now()))
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date(2010,0,31))
+  const [centerCoordinates, setCenterCoordinates] = useState({
+    lat: 34.0722,
+    lng: -118.37
+  })
+  const [zoomLevel, setZoomLevel] = useState(10)
   const [crimeType, setCrimeType] = useState("ALL CRIME TYPES")
   const raceArr = Object.keys(raceDict)
   const headerRef = useRef()
@@ -61,14 +68,9 @@ function Analytics() {
   }, [queryType])
 
   const onQueryChange = React.useEffect(() => {
-    switch(queryType){
-      case 'location':
-        QueryServer.location(area).then(result_json => setData(result_json))
-        break;
-      default:
-        QueryServer.location(area).then(result_json => setData(result_json))
-    }
-  }, [area])
+    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+
+  }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race])
 
   const onDataChange = React.useEffect(() => {
     console.log(data)
@@ -78,7 +80,11 @@ function Analytics() {
   }
 
   return (
-    <div style={{ width: "auto", height: "auto", overflow: "hidden" }}>
+    // <div>
+    //   <MapView heatMap={heatMap} />
+    //   <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/>
+    // </div>
+    <div style={{ width: "100vw", overflow: "hidden" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Grid
@@ -111,7 +117,9 @@ function Analytics() {
                     setSelectedEndDate={setSelectedEndDate}
                   />
                 </Grid>
-
+                {/* <Grid item xs={12}>
+                  <HourSliderComp hour={hour} setHour={setHour} />
+                </Grid> */}
                 <Grid item xs={12}>
                   <SelectComp
                     title={"Select Crime Type"}
@@ -120,6 +128,16 @@ function Analytics() {
                     setFoo={setCrimeType}
                   />
                 </Grid>
+                {/* <Grid item xs={12} style={{ marginBottom: 40 }}>
+                  <div style={{ marginBottom: 5, fontSize: 10 }}>
+                    Experimental Feature *
+                  </div>
+                  <ComboBox
+                    arr={mocodesDict}
+                    mocode={mocode}
+                    setMocode={setMocode}
+                  />
+                </Grid> */}
 
                 <Grid item xs={6}>
                   <SelectRaceComp
@@ -146,6 +164,26 @@ function Analytics() {
                   />
                 </Grid>
               </Grid>
+              {/* <Grid item xs={12}>
+                <AgeSliderComp age={age} setAge={setAge} />
+              </Grid> */}
+
+              {/* <TabComp
+                area={area}
+                race={race}
+                gender={gender}
+                crimeType={crimeType}
+                filteredData={data}
+                listRefs={listRefs}
+                addToRefs={addToRefs}
+                zoomLevel={zoomLevel}
+                setZoomLevel={setZoomLevel}
+                setCenterCoordinates={setCenterCoordinates}
+                setSelectedItem={setSelectedItem}
+              /> */}
+              {/* <Resources /> */}
+              {/* <Footer headerRef={headerRef} /> */}
+
             </Container>
           </Grid>
 
@@ -159,6 +197,8 @@ function Analytics() {
               alignItems: "center"
             }}
           >
+            {/* <MapView heatMap={mapLayer} crimeData={data} /> */}
+            {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             <Analysis
               data={data}
               area={area}
@@ -173,4 +213,4 @@ function Analytics() {
   )
 }
 
-export default Analytics;
+export default Visualizations;
