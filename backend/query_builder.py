@@ -27,92 +27,131 @@ class QueryEngine:
         # Load crime data for later use
         logger.info("Loading Crime data...")
         self.sql_context = SQLContext(sc)
-        self.crime_data_file_path = os.path.join(dataset_path, 'crime_data.csv')
-        self.crime_data = self.sql_context.read.format('com.databricks.spark.csv').options(header='true',
-                                                                                           inferschema='true').load(
-            self.crime_data_file_path). \
-            selectExpr(
-            "DR_NO",
-            "Date_Rptd",
-            "DATE_OCC",
-            "TIME_OCC",
-            "AREA",
-            "AREA_NAME",
-            "Rpt_Dist_No",
-            "Part_1_2",
-            "Crm_Cd",
-            "Crm_Cd_Desc",
-            "Mocodes",
-            "Vict_Age",
-            "Vict_Sex",
-            "Vict_Descent",
-            "Premis_Cd",
-            "Premis_Desc",
-            "Weapon_Used_Cd",
-            "Weapon_Desc",
-            "Status",
-            "Status_Desc",
-            "Crm_Cd_1",
-            "Crm_Cd_2",
-            "Crm_Cd_3",
-            "Crm_Cd_4",
-            "LOCATION",
-            "Cross_Street",
-            "LAT",
-            "LON"
-        )
-        # self.crime_data = self.crime_data.repartition(16)
-        logger.info(self.crime_data.rdd.getNumPartitions())
-        logger.info("Preprocessing the data...")
-        self.__preprocess_data()
+        self.crime_data = self.LaCountyData(self.sql_context, dataset_path).data
+        self.twitter_data = self.TwitterData(self.sql_context, dataset_path).data
 
-    @staticmethod
-    def __map_function(data_object):
-        """
-            Uses timestamp of the day to return the part of the day
-        """
-        ts = int(data_object.TIME_OCC)
-        if 400 <= ts < 1100:
-            part_of_the_day = "morning"
-        elif 1100 <= ts < 1600:
-            part_of_the_day = "afternoon"
-        elif 1600 <= ts < 2100:
-            part_of_the_day = "evening"
-        else:
-            part_of_the_day = "night"
-        crime_id = data_object.DR_NO
-        date_reported = data_object.Date_Rptd
-        date_occurred = data_object.DATE_OCC[0: 10]
-        time_occurred = data_object.TIME_OCC
-        area = data_object.AREA
-        area_name = data_object.AREA_NAME
-        age = data_object.Vict_Age
-        sex = data_object.Vict_Sex
-        crime_type_id = data_object.Crm_Cd
-        crime_type = data_object.Crm_Cd_Desc
-        location = data_object.LOCATION
-        latitude = data_object.LAT
-        longitude = data_object.LON
-        month = data_object.DATE_OCC[0: 2]
-        race = data_object.Vict_Descent
-        # generating timestamp
-        date_time = datetime.datetime(int(data_object.DATE_OCC[6: 10]), int(data_object.DATE_OCC[0: 2]), int(data_object.DATE_OCC[3: 5]))
-        timestamp = str(time.mktime(date_time.timetuple())).split('.')[0]
+    class LaCountyData:
 
-        return (crime_id, date_reported, date_occurred, time_occurred, part_of_the_day, area, area_name, age, sex,
-                crime_type_id, crime_type, location, latitude, longitude, month, race, timestamp)
+        def __init__(self, sql_la_county_data_context, dataset_path):
+            self.crime_data_file_path = os.path.join(dataset_path, 'crime_data.csv')
+            self.crime_data = sql_la_county_data_context.read.format('com.databricks.spark.csv').options(header='true',
+                                                                                                         inferschema='true').load(
+                self.crime_data_file_path). \
+                selectExpr(
+                "DR_NO",
+                "Date_Rptd",
+                "DATE_OCC",
+                "TIME_OCC",
+                "AREA",
+                "AREA_NAME",
+                "Rpt_Dist_No",
+                "Part_1_2",
+                "Crm_Cd",
+                "Crm_Cd_Desc",
+                "Mocodes",
+                "Vict_Age",
+                "Vict_Sex",
+                "Vict_Descent",
+                "Premis_Cd",
+                "Premis_Desc",
+                "Weapon_Used_Cd",
+                "Weapon_Desc",
+                "Status",
+                "Status_Desc",
+                "Crm_Cd_1",
+                "Crm_Cd_2",
+                "Crm_Cd_3",
+                "Crm_Cd_4",
+                "LOCATION",
+                "Cross_Street",
+                "LAT",
+                "LON"
+            )
+            self.crime_data = self.crime_data.repartition(16)
+            # self.crime_data.write.parquet("crime_data.parquet")
+            # self.crime_data = sql_la_county_data_context.read.parquet("crime_data.parquet")
+            # logger.info(self.crime_data.rdd.getNumPartitions())
+            logger.info("Preprocessing the data...")
+            self.__preprocess_data()
 
-    def __preprocess_data(self):
-        """
-            adds a column on part of the day(morning, afternoon, evening, night) if it doesnt exist
-        """
-        if "part_of_the_day" not in self.crime_data.columns:
-            self.crime_data = self.crime_data.rdd.map(lambda x: QueryEngine.__map_function(x)). \
-                toDF(["crime_id", "date_reported", "date_occurred", "time_occurred", "part_of_the_day", "area",
-                      "area_name", "age", "sex",
-                      "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "race", "timestamp"])
-        logger.info(self.crime_data.columns)
-        self.crime_data.show(10)
+        @property
+        def data(self):
+            """
+                Returns Crime Data
+            """
+            return self.crime_data
+
+        @staticmethod
+        def __map_function(data_object):
+            """
+                Uses timestamp of the day to return the part of the day
+            """
+            ts = int(data_object.TIME_OCC)
+            if 400 <= ts < 1100:
+                part_of_the_day = "morning"
+            elif 1100 <= ts < 1600:
+                part_of_the_day = "afternoon"
+            elif 1600 <= ts < 2100:
+                part_of_the_day = "evening"
+            else:
+                part_of_the_day = "night"
+            crime_id = data_object.DR_NO
+            date_reported = data_object.Date_Rptd
+            date_occurred = data_object.DATE_OCC[0: 10]
+            time_occurred = data_object.TIME_OCC
+            area = data_object.AREA
+            area_name = data_object.AREA_NAME
+            age = data_object.Vict_Age
+            sex = data_object.Vict_Sex
+            crime_type_id = data_object.Crm_Cd
+            crime_type = data_object.Crm_Cd_Desc
+            location = data_object.LOCATION
+            latitude = data_object.LAT
+            longitude = data_object.LON
+            month = data_object.DATE_OCC[0: 2]
+            race = data_object.Vict_Descent
+            # generating timestamp
+            date_time = datetime.datetime(int(data_object.DATE_OCC[6: 10]), int(data_object.DATE_OCC[0: 2]),
+                                          int(data_object.DATE_OCC[3: 5]))
+            timestamp = str(time.mktime(date_time.timetuple())).split('.')[0]
+
+            return (crime_id, date_reported, date_occurred, time_occurred, part_of_the_day, area, area_name, age, sex,
+                    crime_type_id, crime_type, location, latitude, longitude, month, race, timestamp)
+
+        def __preprocess_data(self):
+            """
+                adds a column on part of the day(morning, afternoon, evening, night) if it doesnt exist
+            """
+            if "part_of_the_day" not in self.crime_data.columns:
+                self.crime_data = self.crime_data.rdd.map(lambda x: QueryEngine.LaCountyData.__map_function(x)). \
+                    toDF(["crime_id", "date_reported", "date_occurred", "time_occurred", "part_of_the_day", "area",
+                          "area_name", "age", "sex",
+                          "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "race",
+                          "timestamp"])
+
+            logger.info(self.crime_data.columns)
+            self.crime_data.show(10)
+
+    class TwitterData:
+
+        def __init__(self, sql_twitter_data_context, dataset_path):
+            self.crime_data_file_path = os.path.join(dataset_path, 'twitter_data.csv')
+            self.twitter_data = sql_twitter_data_context.read.format('com.databricks.spark.csv').options(header='true',
+                                                                                                         inferschema='true').load(
+                self.crime_data_file_path). \
+                selectExpr(
+                "crime_id",
+                "latitude",
+                "longitude"
+            )
+            self.twitter_data.show(15)
+
+        @property
+        def data(self):
+            """
+                Returns Twitter Crime Data
+            """
+            return self.twitter_data
 
 
 def __area_based_query(self, area_name):
@@ -191,14 +230,23 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
     """
     logger.info("Running Aggregate Query...")
     self.crime_data.createOrReplaceTempView("crime_data")
-    query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
+    start_time = time.time()
+    query = "select crime_id, time_occurred, part_of_the_day, area," \
+            " age, sex, crime_type_id, latitude, longitude, month, race " \
+            " from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
             "(timestamp between '{2}' and '{3}') and " \
             "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
             "(race = '{6}' or '{6}' = 'all')" \
         .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
     logger.info("Running :- {}".format(query))
-    query_results = self.sql_context.sql(query)
+    query_results = self.sql_context.sql(query).agg(f.collect_list("crime_id"), f.collect_list("time_occurred"),
+                                                    f.collect_list("part_of_the_day"), f.collect_list("area"),
+                                                    f.collect_list("age"), f.collect_list("sex"),
+                                                    f.collect_list("crime_type_id"), f.collect_list("latitude"),
+                                                    f.collect_list("longitude"), f.collect_list("month"),
+                                                    f.collect_list("race"))
     response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
     return response
 
 
