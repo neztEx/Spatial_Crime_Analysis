@@ -4,7 +4,7 @@ import { useWindowSize } from "../useWindowSize"
 
 export function BarChartComp({ data, height, yAxisWidth }) {
   const size = useWindowSize()
-
+  console.log(data)
   return (
     <>
       <BarChart
@@ -32,7 +32,7 @@ export function BarChartComp({ data, height, yAxisWidth }) {
           wrapperStyle={{ backgroundColor: "transparent" }}
           contentStyle={{ color: "#333" }}
         />
-        <Bar dataKey={"count"} fill="#0EA7BC" barSize={10} />
+        <Bar dataKey={"count"} fill="#00008B" barSize={10} />
       </BarChart>
     </>
   )
@@ -44,7 +44,7 @@ export function LineChartComp({ data, height, yAxisWidth }) {
     return (
       <>
         <LineChart
-          width={size.width < 380 ? 340 : 380}
+          width={size.width < 380 ? 340 : 900}
           height={height}
           data={data}
           margin={{
@@ -53,7 +53,7 @@ export function LineChartComp({ data, height, yAxisWidth }) {
             left: 15,
             bottom: 10
           }}
-        >
+          >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="value" allowDuplicatedCategory={false} />
           <YAxis width={yAxisWidth} />
@@ -61,9 +61,9 @@ export function LineChartComp({ data, height, yAxisWidth }) {
           <Line
             type="monotone"
             dataKey="count"
-            stroke="#0EA7BC"
+            stroke="#00008B"
             activeDot={{ r: 8 }}
-          />
+            />
         </LineChart>
       </>
     )

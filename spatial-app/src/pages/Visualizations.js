@@ -8,12 +8,13 @@ import { DateFilterComp } from "../components/DateFilterComp"
 import { Analysis } from "../components/Analysis"
 import Map from '../components/Map'
 
+
 import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr } from "../components/Arr"
 import SelectRaceComp from "../components/SelectRaceComp"
 import SelectComp from "../components/SelectComp"
 
 import pink from "@material-ui/core/colors/pink"
-import cyan from "@material-ui/core/colors/cyan"
+import cyan from "@material-ui/core/colors/blue"
 
 
 import * as QueryServer from '../components/QueryServer'
@@ -49,14 +50,15 @@ function Visualizations() {
   const [hour, setHour] = useState([0, 24])
   const [gender, setGender] = useState("All")
   const [selectedStartDate, setSelectedStartDate] = useState(
-    new Date().setMonth(new Date().getMonth() - 1)
+    // new Date().setMonth(new Date().getMonth() - 1)
+    new Date(2010,0,1)
   )
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date(2010,0,31))
   const [centerCoordinates, setCenterCoordinates] = useState({
     lat: 34.0722,
     lng: -118.37
   })
   const [zoomLevel, setZoomLevel] = useState(10)
-  const [selectedEndDate, setSelectedEndDate] = useState(new Date(Date.now()))
   const [crimeType, setCrimeType] = useState("ALL CRIME TYPES")
   const raceArr = Object.keys(raceDict)
   const headerRef = useRef()
