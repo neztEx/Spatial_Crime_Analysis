@@ -51,7 +51,7 @@ const center = {
   lng: -118.2437,
 };
 
-function MapView({heatMap, crimeData}) {
+function MapView({ heatMap, crimeData }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -88,7 +88,7 @@ function MapView({heatMap, crimeData}) {
         options={options}
         onLoad={onMapLoad}
       >
-        {heatMap==='Heat Map' ?
+        {heatMap === 'Heat Map' ?
           <HeatmapLayer data={HeatMap(crimeData)} /> :
           <div>
             <DataPoints setSelected={setSelected} crimeData={crimeData} />
@@ -173,24 +173,53 @@ function Search({ panTo }) {
 }
 
 function DataPoints({ setSelected, crimeData }) {
-  if (crimeData) {
-    const points = crimeData.map((crime) =>
-      <Circle
-        key={crime.crime_id}
-        radius={100}
-        center={{
-          lat: crime.latitude,
-          lng: crime.longitude
-        }}
-        // icon={"https://storage.googleapis.com/support-kms-prod/SNP_2752125_en_v0"}
-        // animation='BOUNCE'
-        onClick={() => {
-          setSelected(crime)
-        }}
-      />)
 
-    return points
+  if (crimeData) {
+    const points = crimeData.map((crime) => {
+      {
+        return crime.race == 'H' ?
+        <Marker
+          key={crime.crime_id}
+          position={{
+            lat: crime.latitude,
+            lng: crime.longitude
+          }}
+          icon={crime.sex === 'M' ? { 
+            url: "/twitter-logoGreen.svg",
+            scaledSize: new window.google.maps.Size(20,20)
+          } :{
+          url: "/twitter-logoRed.svg",
+          scaledSize: new window.google.maps.Size(20,20)}}
+          opacity={0.5}
+
+
+        />
+        : <Circle
+          key={crime.crime_id}
+          radius={100}
+          center={{
+            lat: crime.latitude,
+            lng: crime.longitude
+          }}
+          options={crime.sex === 'M' ? {
+            strokeColor: "#0000FF",
+            fillColor: "#0000FF",
+            fillOpacity: 1
+          } : {
+            strokeColor: "#C71585",
+            fillColor: "#C71585",
+            fillOpacity: 1
+          }}
+          onClick={() => {
+            setSelected(crime)
+          }}
+        />
+      }
+    })
+  
+  return points
   }
+
   else return null
 }
 
@@ -219,6 +248,7 @@ function CrimeInfo({ selected, setSelected }) {
           <ul>
             <li>Age: {selected.age}</li>
             <li>Sex: {selected.sex}</li>
+            <li>Race: {selected.race}</li>
             <li>Time: {selected.time_occurred}</li>
           </ul>
         </div>
