@@ -24,6 +24,7 @@ import { formatRelative } from "date-fns";
 import "@reach/combobox/styles.css";
 // import mapStyles from "../mapStyles";
 import "../App.css";
+import { Select } from "@material-ui/core";
 
 
 const libraries = ["places", "visualization"];
@@ -51,7 +52,7 @@ const center = {
   lng: -118.2437,
 };
 
-function MapView({ heatMap, crimeData, queryType }) {
+function MapView({ heatMap, crimeData, queryType, twitterData }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -94,8 +95,8 @@ function MapView({ heatMap, crimeData, queryType }) {
             <DataPoints setSelected={setSelected} crimeData={crimeData} />
             <CrimeInfo selected={selected} setSelected={setSelected} />
           </div>}
-          
-          {queryType === 'Twitter Data' ?
+
+        {queryType === 'Twitter Data' ?
           <TwitterPoints data={twitterData} /> :
           <></>}
 
@@ -177,50 +178,30 @@ function Search({ panTo }) {
   )
 }
 
-function DataPoints({ setSelected, crimeData }) {
+function oldDataPoints({ setSelected, crimeData }) {
 
   if (crimeData) {
     const points = crimeData.map((crime) => {
-      {
-        return crime.race == 'H' ?
-          <Marker
-            key={crime.crime_id}
-            position={{
-              lat: crime.latitude,
-              lng: crime.longitude
-            }}
-            icon={crime.sex === 'M' ? {
-              url: "/twitter-logoGreen.svg",
-              scaledSize: new window.google.maps.Size(20, 20)
-            } : {
-              url: "/twitter-logoRed.svg",
-              scaledSize: new window.google.maps.Size(20, 20)
-            }}
-            opacity={0.5}
-
-
-          />
-          : <Circle
-            key={crime.crime_id}
-            radius={100}
-            center={{
-              lat: crime.latitude,
-              lng: crime.longitude
-            }}
-            options={crime.sex === 'M' ? {
-              strokeColor: "#0000FF",
-              fillColor: "#0000FF",
-              fillOpacity: 1
-            } : {
-              strokeColor: "#C71585",
-              fillColor: "#C71585",
-              fillOpacity: 1
-            }}
-            onClick={() => {
-              setSelected(crime)
-            }}
-          />
-      }
+      return <Circle
+        key={crime.crime_id}
+        radius={100}
+        center={{
+          lat: crime.latitude,
+          lng: crime.longitude
+        }}
+        options={crime.sex === 'M' ? {
+          strokeColor: "#0000FF",
+          fillColor: "#0000FF",
+          fillOpacity: 1
+        } : {
+          strokeColor: "#C71585",
+          fillColor: "#C71585",
+          fillOpacity: 1
+        }}
+        onClick={() => {
+          setSelected(crime)
+        }}
+      />
     })
 
     return points
@@ -229,11 +210,56 @@ function DataPoints({ setSelected, crimeData }) {
   else return null
 }
 
+function DataPoints({ setSelected, crimeData }) {
+
+  if (crimeData && crimeData[0]) {
+    const points = []
+    for (var i = 0; i < crimeData[0]['collect_list(age)'].length; i++) {
+      const point = {
+        "latitude": crimeData[0]['collect_list(latitude)'][i],
+        "longitude": crimeData[0]['collect_list(longitude)'][i],
+        "crime_type": crimeData[0]['collect_list(crime_type_id)'][i],
+        "age": crimeData[0]['collect_list(age)'][i],
+        "sex": crimeData[0]['collect_list(sex)'][i],
+        "race": crimeData[0]['collect_list(race)'][i],
+        "time_occurred": crimeData[0]['collect_list(time_occurred)'][i],
+        
+      }
+      points.push(<Circle
+        key={crimeData[0]['collect_list(crime_id)'][i]}
+        radius={100}
+        center={{
+          lat: crimeData[0]['collect_list(latitude)'][i],
+          lng: crimeData[0]['collect_list(longitude)'][i]
+        }}
+        options={crimeData[0]['collect_list(sex)'][i] === 'M' ? {
+          strokeColor: "#0000FF",
+          fillColor: "#0000FF",
+          fillOpacity: 1
+        } : {
+          strokeColor: "#C71585",
+          fillColor: "#C71585",
+          fillOpacity: 1
+        }}
+        
+        onClick={() => {
+          console.log(point)
+          setSelected(point)
+        }}
+      />)
+    }
+    return points
+  }
+  else return []
+}
+
 function HeatMap(crimeData) {
   if (crimeData) {
-    const points = crimeData.map((crime) => {
-      return new window.google.maps.LatLng(crime.latitude, crime.longitude)
-    })
+    const points = []
+    console.log(crimeData[0])
+    for (var i = 0; i < crimeData[0]['collect_list(age)'].length; i++) {
+      points.push(new window.google.maps.LatLng(crimeData[0]['collect_list(latitude)'][i], crimeData[0]['collect_list(longitude)'][i]))
+    }
     return points
   }
   else return []
@@ -241,8 +267,8 @@ function HeatMap(crimeData) {
 
 function TwitterPoints(twitterData) {
   if (twitterData) {
-    const points = crimeData.map((crime) => {
-      <Marker
+    const points = twitterData.map((crime) => {
+      return <Marker
         key={crime.crime_id}
         position={{
           lat: crime.latitude,
@@ -264,6 +290,7 @@ function TwitterPoints(twitterData) {
 }
 
 function CrimeInfo({ selected, setSelected }) {
+  console.log(selected)
   return (
     selected ? (
       <InfoWindow
@@ -277,8 +304,8 @@ function CrimeInfo({ selected, setSelected }) {
           <p>Details</p>
           <ul>
             <li>Age: {selected.age}</li>
-            <li>Sex: {selected.sex}</li>
-            <li>Race: {selected.race}</li>
+            {/* <li>Sex: {selected.sex}</li>
+            <li>Race: {selected.race}</li> */}
             <li>Time: {selected.time_occurred}</li>
           </ul>
         </div>

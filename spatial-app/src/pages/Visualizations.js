@@ -214,7 +214,7 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} />
+            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} twitterData={twitterData}/>
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             {/* <Analysis
               data={data}
