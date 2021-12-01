@@ -26,3 +26,12 @@ export const generic = async function(area, start_date, end_date, type_of_crime,
     .catch(res => {});
     return await fetched_json;
 }
+
+export const twitter = async function() {
+    const url = `http://0.0.0.0:5432/twitter_query`
+    console.log(url)
+    let fetched_json = fetch(url)
+    .then(res => res.json())
+    .catch(res => {});
+    return await fetched_json;
+}
