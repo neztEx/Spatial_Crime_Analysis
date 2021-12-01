@@ -260,23 +260,14 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
     """
     logger.info("Running Aggregate Query...")
     self.crime_data.createOrReplaceTempView("crime_data")
-    start_time = time.time()
-    query = "select crime_id, time_occurred, part_of_the_day, area," \
-            " age, sex, crime_type_id, latitude, longitude, month, race " \
-            " from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
+    query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
             "(timestamp between '{2}' and '{3}') and " \
             "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
             "(race = '{6}' or '{6}' = 'all')" \
         .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
     logger.info("Running :- {}".format(query))
-    query_results = self.sql_context.sql(query).agg(f.collect_list("crime_id"), f.collect_list("time_occurred"),
-                                                    f.collect_list("part_of_the_day"), f.collect_list("area"),
-                                                    f.collect_list("age"), f.collect_list("sex"),
-                                                    f.collect_list("crime_type_id"), f.collect_list("latitude"),
-                                                    f.collect_list("longitude"), f.collect_list("month"),
-                                                    f.collect_list("race"))
+    query_results = self.sql_context.sql(query)
     response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
-    logger.info("--- %s seconds ---" % (time.time() - start_time))
     return response
 
 
