@@ -69,16 +69,15 @@ function Visualizations() {
     setQueryUpdated(!queryUpdated);
   }, [queryType])
 
+  const onQueryTypeChange = React.useEffect(() => {
+    QueryServer.twitter().then(result_json => setTwitterData(result_json))
+  
+  }, [queryType])
+
+
   const onQueryChange = React.useEffect(() => {
     QueryServer.generic(area,selectedStartDate,selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
-    
-    // switch(queryType){
-    //   case 'location':
-    //     QueryServer.location(area).then(result_json => setData(result_json))
-    //     break;
-    //   default:
-    //     QueryServer.location(area).then(result_json => setData(result_json))
-    // }
+  
   }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race ])
 
   const onDataChange = React.useEffect(() => {
@@ -214,7 +213,7 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} />
+            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} twitterData={twitterData}/>
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             {/* <Analysis
               data={data}

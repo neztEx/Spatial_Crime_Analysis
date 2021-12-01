@@ -51,7 +51,7 @@ const center = {
   lng: -118.2437,
 };
 
-function MapView({ heatMap, crimeData, queryType }) {
+function MapView({ heatMap, crimeData, queryType, twitterData }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
@@ -182,25 +182,7 @@ function DataPoints({ setSelected, crimeData }) {
   if (crimeData) {
     const points = crimeData.map((crime) => {
       {
-        return crime.race == 'H' ?
-          <Marker
-            key={crime.crime_id}
-            position={{
-              lat: crime.latitude,
-              lng: crime.longitude
-            }}
-            icon={crime.sex === 'M' ? {
-              url: "/twitter-logoGreen.svg",
-              scaledSize: new window.google.maps.Size(20, 20)
-            } : {
-              url: "/twitter-logoRed.svg",
-              scaledSize: new window.google.maps.Size(20, 20)
-            }}
-            opacity={0.5}
-
-
-          />
-          : <Circle
+        return <Circle
             key={crime.crime_id}
             radius={100}
             center={{
@@ -240,15 +222,17 @@ function HeatMap(crimeData) {
 }
 
 function TwitterPoints(twitterData) {
+  console.log(twitterData)
   if (twitterData) {
-    const points = crimeData.map((crime) => {
-      <Marker
+    const points = twitterData.data.map((crime) => {
+      return <Marker
         key={crime.crime_id}
         position={{
           lat: crime.latitude,
           lng: crime.longitude
         }}
-        icon={crime.sex === 'M' ? {
+        icon={crime.sentiment === "Positive"
+         ? {
           url: "/twitter-logoGreen.svg",
           scaledSize: new window.google.maps.Size(20, 20)
         } : {

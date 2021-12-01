@@ -280,8 +280,7 @@ def __twitter_query(self):
     start_time = time.time()
     query = "select * from twitter_data"
     logger.info("Running :- {}".format(query))
-    query_results = self.sql_context.sql(query).agg(f.collect_list("crime_id"), f.collect_list("latitude"),
-                                                    f.collect_list("longitude"), f.collect_list("sentiment"))
+    query_results = self.sql_context.sql(query)
     response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
     logger.info("--- %s seconds ---" % (time.time() - start_time))
     return response
