@@ -3,6 +3,7 @@ export const dayArr = Array.from({ length: 31 }, (_, i) => i + 1)
 export const yearArr = [2020, 2021]
 export const genderArr = ["M", "F", "X", "All"]
 export const mapLayerArr = ["Data Points", "Heat Map"]
+export const queryTypeArr = ["None","Twitter Data"]
 
 export const crimeTypeArr = [
   "ALL CRIME TYPES",

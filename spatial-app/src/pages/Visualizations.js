@@ -9,7 +9,7 @@ import { Analysis } from "../components/Analysis"
 import Map from '../components/Map'
 
 
-import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr } from "../components/Arr"
+import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr, queryTypeArr } from "../components/Arr"
 import SelectRaceComp from "../components/SelectRaceComp"
 import SelectComp from "../components/SelectComp"
 
@@ -39,9 +39,9 @@ function Visualizations() {
     {value: 'location', label: 'Location' }
   ]
   
-  const [queryType, setQueryType] = React.useState("location");
-
+  const [queryType, setQueryType] = React.useState("None");
   const [queryUpdated, setQueryUpdated] = React.useState(false);
+
   const [data, setData] = useState([])
   const [area, setArea] = useState("All Areas")
   const [race, setRace] = useState("All")
@@ -163,12 +163,20 @@ function Visualizations() {
                     setFoo={setGender}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={6}>
                   <SelectComp
                     title={"Map Layers"}
                     arr={mapLayerArr}
                     foo={mapLayer}
                     setFoo={setMapLayer}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <SelectComp
+                    title={"Queries"}
+                    arr={queryTypeArr}
+                    foo={queryType}
+                    setFoo={setQueryType}
                   />
                 </Grid>
               </Grid>
