@@ -33,7 +33,8 @@ const mapContainerStyle = {
   width: "100%",
   position: "absolute",
   top: "5rem",
-  maxWidth: "inherit"
+  maxWidth: "inherit",
+  right: ".1rem"
   // need to add max-width: inherit
 };
 
@@ -213,12 +214,12 @@ function CrimeInfo({ selected, setSelected }) {
         }}
       >
         <div>
-          <b>{selected.Crm_Cd_Desc}</b>
+          <b>{selected.crime_type}</b>
           <p>Details</p>
           <ul>
-            <li>Age: {selected.Vict_Age}</li>
-            <li>Sex: {selected.Vict_Sex}</li>
-            <li>Time: {selected.TIME_OCC}</li>
+            <li>Age: {selected.age}</li>
+            <li>Sex: {selected.sex}</li>
+            <li>Time: {selected.time_occurred}</li>
           </ul>
         </div>
       </InfoWindow>
