@@ -80,6 +80,12 @@ def aggregate_query():
                                                    request.args.get('gender'), request.args.get('race'))
     return json.dumps(query_results)
 
+@main.route("/twitter_query", methods=["GET"])
+def twitter_query():
+    logger.debug("Executing Twitter Query...")
+    query_results = query_engine.__twitter_query()
+    return json.dumps(query_results)
+
 
 def create_app(spark_context, dataset_path):
     global query_engine

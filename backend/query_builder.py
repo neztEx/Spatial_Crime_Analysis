@@ -140,11 +140,13 @@ class QueryEngine:
                                                                                                          inferschema='true').load(
                 self.crime_data_file_path). \
                 selectExpr(
-                "crime_id",
-                "latitude",
-                "longitude"
+                "id",
+                "lat",
+                "lon",
+                "sentiment"
             )
-            self.twitter_data.show(15)
+            self.twitter_data.show(10)
+            self.__preprocess_data()
 
         @property
         def data(self):
@@ -152,6 +154,34 @@ class QueryEngine:
                 Returns Twitter Crime Data
             """
             return self.twitter_data
+
+        @staticmethod
+        def __map_function(data_object):
+            """
+                Uses timestamp of the day to return the part of the day
+            """
+            crime_id = data_object.id
+            latitude = data_object.lat
+            longitude = data_object.lon
+            sentiment = data_object.sentiment
+            # generating timestamp
+            # try:
+            #     date_time = datetime.datetime(int(data_object.timestamp[0: 4]), int(data_object.timestamp[5: 7]),
+            #                                   int(data_object.timestamp[8: 10]))
+            #     timestamp = str(time.mktime(date_time.timetuple())).split('.')[0]
+            # except Exception as e:
+            #     timestamp = str(datetime.datetime.now().timestamp()).split(".")[0]
+            return crime_id, latitude, longitude, sentiment
+
+        def __preprocess_data(self):
+            """
+                preprocess the data
+            """
+            self.twitter_data = self.twitter_data.rdd.map(lambda x: QueryEngine.TwitterData.__map_function(x)). \
+                toDF(["crime_id", "latitude", "longitude", "sentiment"])
+
+            logger.info(self.twitter_data.columns)
+            self.twitter_data.show(10)
 
 
 def __area_based_query(self, area_name):
@@ -250,7 +280,24 @@ def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gend
     return response
 
 
+def __twitter_query(self):
+    """
+        Aggregate Query on Twitter Data
+    """
+    logger.info("Running Aggregate Query on Twitter Data...")
+    self.twitter_data.createOrReplaceTempView("twitter_data")
+    start_time = time.time()
+    query = "select * from twitter_data"
+    logger.info("Running :- {}".format(query))
+    query_results = self.sql_context.sql(query).agg(f.collect_list("crime_id"), f.collect_list("latitude"),
+                                                    f.collect_list("longitude"), f.collect_list("sentiment"))
+    response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
+    return response
+
+
 QueryEngine.__area_based_query = __area_based_query
 QueryEngine.__date_based_query = __date_based_query
 QueryEngine.__generic_attribute_query = __generic_attribute_query
 QueryEngine.__aggregate_query = __aggregate_query
+QueryEngine.__twitter_query = __twitter_query
