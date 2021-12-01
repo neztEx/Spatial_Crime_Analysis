@@ -43,6 +43,7 @@ function Visualizations() {
   const [queryUpdated, setQueryUpdated] = React.useState(false);
 
   const [data, setData] = useState([])
+  const [twitterData, setTwitterData] = useState([])
   const [area, setArea] = useState("All Areas")
   const [race, setRace] = useState("All")
   const [mapLayer, setMapLayer] = useState("Data Points")
@@ -173,7 +174,7 @@ function Visualizations() {
                 </Grid>
                 <Grid item xs={6}>
                   <SelectComp
-                    title={"Queries"}
+                    title={"Data"}
                     arr={queryTypeArr}
                     foo={queryType}
                     setFoo={setQueryType}
@@ -213,7 +214,7 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            <MapView heatMap={mapLayer} crimeData={data} />
+            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} />
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             {/* <Analysis
               data={data}
