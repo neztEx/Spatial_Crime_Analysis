@@ -3,7 +3,7 @@ import '../App.css'
 import MapView from '../components/GoogleMap';
 import { Container, Grid, CssBaseline } from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
-import { useMediaQuery } from "@material-ui/core"
+import { useMediaQuery, Button } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
 import { Analysis } from "../components/Analysis"
 import Map from '../components/Map'
@@ -33,12 +33,12 @@ function Visualizations() {
       }),
     [prefersDarkMode]
   )
-  
+
 
   const options = [
-    {value: 'location', label: 'Location' }
+    { value: 'location', label: 'Location' }
   ]
-  
+  const [submit, setSubmit] = React.useCallback([])
   const [queryType, setQueryType] = React.useState("None");
   const [queryUpdated, setQueryUpdated] = React.useState(false);
 
@@ -52,9 +52,9 @@ function Visualizations() {
   const [gender, setGender] = useState("All")
   const [selectedStartDate, setSelectedStartDate] = useState(
     // new Date().setMonth(new Date().getMonth() - 1)
-    new Date(2010,0,1)
+    new Date(2019, 0, 1)
   )
-  const [selectedEndDate, setSelectedEndDate] = useState(new Date(2010,0,31))
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date(2019, 0, 31))
   const [centerCoordinates, setCenterCoordinates] = useState({
     lat: 34.0722,
     lng: -118.37
@@ -71,18 +71,24 @@ function Visualizations() {
 
   const onQueryTypeChange = React.useEffect(() => {
     QueryServer.twitter().then(result_json => setTwitterData(result_json))
-  
+
   }, [queryType])
 
 
-  const onQueryChange = React.useEffect(() => {
-    QueryServer.generic(area,selectedStartDate,selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
-  
-  }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race ])
+  // const onQueryChange = React.useEffect(() => {
+  //   QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+
+  // }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race])
+
+  const sendQuery = () =>{
+    console.log('sending query')
+    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+  }
 
   const onDataChange = React.useEffect(() => {
     console.log(data)
   }, [data])
+
   const handleChange = (selectedOption) => {
     setQueryType(selectedOption);
   }
@@ -179,6 +185,12 @@ function Visualizations() {
                     setFoo={setQueryType}
                   />
                 </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" color="primary" type="submit" style={{ display: "flex", width: "100%" }}
+                   onClick={sendQuery}>
+                    Submit
+                  </Button>
+                </Grid>
               </Grid>
               {/* <Grid item xs={12}>
                 <AgeSliderComp age={age} setAge={setAge} />
@@ -213,7 +225,7 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} twitterData={twitterData}/>
+            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} twitterData={twitterData} />
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             {/* <Analysis
               data={data}

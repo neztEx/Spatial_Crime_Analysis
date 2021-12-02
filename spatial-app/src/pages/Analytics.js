@@ -3,7 +3,7 @@ import '../App.css'
 import MapView from '../components/GoogleMap';
 import { Container, Grid, CssBaseline } from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
-import { useMediaQuery } from "@material-ui/core"
+import { useMediaQuery, Button } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
 import { Analysis } from "../components/Analysis"
 import Map from '../components/Map'
@@ -27,8 +27,8 @@ function Visualizations() {
       createTheme({
         palette: {
           type: prefersDarkMode ? "dark" : "light",
-          primary: blueGrey,
-          secondary: pink
+          // primary: blueGrey,
+          // secondary: pink
         }
       }),
     [prefersDarkMode]
@@ -50,9 +50,9 @@ function Visualizations() {
   const [hour, setHour] = useState([0, 24])
   const [gender, setGender] = useState("All")
   const [selectedStartDate, setSelectedStartDate] = useState(
-    new Date(2010,0,1)
+    new Date(2019,0,1)
   )
-  const [selectedEndDate, setSelectedEndDate] = useState(new Date(2010,0,31))
+  const [selectedEndDate, setSelectedEndDate] = useState(new Date(2019,0,31))
   const [centerCoordinates, setCenterCoordinates] = useState({
     lat: 34.0722,
     lng: -118.37
@@ -67,10 +67,15 @@ function Visualizations() {
     setQueryUpdated(!queryUpdated);
   }, [queryType])
 
-  const onQueryChange = React.useEffect(() => {
-    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+  // const onQueryChange = React.useEffect(() => {
+  //   QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
 
-  }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race])
+  // }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race])
+
+  const sendQuery = () =>{
+    console.log('sending query')
+    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+  }
 
   const onDataChange = React.useEffect(() => {
     console.log(data)
@@ -155,13 +160,19 @@ function Visualizations() {
                     setFoo={setGender}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                   <SelectComp
                     title={"Map Layers"}
                     arr={mapLayerArr}
                     foo={mapLayer}
                     setFoo={setMapLayer}
                   />
+                </Grid> */}
+                <Grid item xs={12}>
+                  <Button variant="contained" color="primary" type="submit" style={{ display: "flex", width: "100%" }}
+                   onClick={sendQuery}>
+                    Submit
+                  </Button>
                 </Grid>
               </Grid>
               {/* <Grid item xs={12}>

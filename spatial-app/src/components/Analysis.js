@@ -36,7 +36,7 @@ export const Analysis = ({ data, area, race, gender, crimeType }) => {
     }
 
     const areaData = map(groupBy(data, "area_name"))
-    const dateData = map(groupBy(data, "date_occurred"))
+    const dateData = sortBy(map(groupBy(data, "date_occurred")), 'value')
     const hourData = sortBy(map(groupBy(data, "time_occurred")), (obj) => parseInt(obj.value,10))
     const raceData = map(groupBy(data, "race"))
     const genderData = map(groupBy(data, "sex"))
