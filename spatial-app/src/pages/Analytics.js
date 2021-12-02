@@ -64,6 +64,7 @@ function Visualizations() {
 
 
   const onSelectChange = React.useEffect(() => {
+    console.log('query updated')
     setQueryUpdated(!queryUpdated);
   }, [queryType])
 

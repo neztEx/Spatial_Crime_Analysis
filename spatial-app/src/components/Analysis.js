@@ -3,7 +3,7 @@ import { BarChartComp, LineChartComp } from "./Charts"
 import { Typography } from "@material-ui/core"
 import { countBy, map, sortBy } from "lodash"
 import capitalise from "lodash.capitalize"
-import { raceDict } from "./Arr"
+import { raceDict, crimeTypeArr, genderArr, areaNameArr } from "./Arr"
 import { Container, Grid, CssBaseline } from "@material-ui/core"
 
 
@@ -90,7 +90,7 @@ export const Analysis = ({ data, area, race, gender, crimeType }) => {
                 <LineChartComp data={hourData} height={400} yAxisWidth={20} />
             </Grid>
             <Grid item xs={6}>
-                {crimeType === "ALL CRIME TYPES" && (
+                {crimeTypeArr.includes(crimeType) && (
                     <>
                         <Typography style={{ marginTop: 20, marginBottom: 10 }}>
                             Crime Incidents by Type
@@ -104,7 +104,7 @@ export const Analysis = ({ data, area, race, gender, crimeType }) => {
                 )}
             </Grid>
             <Grid item xs={6}>
-                {area === "All Areas" && (
+                {areaNameArr.includes(area) && (
                     <>
                         <Typography style={{ marginTop: 20, marginBottom: 10 }}>
                             Crime Incidents by Area
@@ -116,7 +116,7 @@ export const Analysis = ({ data, area, race, gender, crimeType }) => {
                         />
                     </>
                 )}
-                {race === "All" && (
+                {raceDict.hasOwnProperty(race) && (
                     <>
                         <Typography style={{ marginTop: 20, marginBottom: 10 }}>
                             Crime Incidents by Race
@@ -130,7 +130,7 @@ export const Analysis = ({ data, area, race, gender, crimeType }) => {
                         />
                     </>
                 )}
-                {gender === "All" && (
+                {genderArr.includes(gender) && (
                     <>
                         <Typography style={{ marginTop: 20, marginBottom: 10 }}>
                             Crime Incidents by Gender
