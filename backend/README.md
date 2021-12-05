@@ -11,5 +11,5 @@ Upgrade the python to python3 (https://levelup.gitconnected.com/a-guide-to-upgra
 Make sure no process is running at port 5432.
 
 ### ` python3 server.py` Runs the app in the development mode.
-\
-The server will run at the port 5432 \
+
+`The server will run at the port 5432 locally`
