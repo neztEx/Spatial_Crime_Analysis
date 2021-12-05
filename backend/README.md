@@ -4,7 +4,7 @@
 
 Upgrade the python to python3 (https://levelup.gitconnected.com/a-guide-to-upgrade-your-python-to-3-9-44ccb3eae31a)
 
-###Run the following commands in the backend directory
+Run the following commands in the backend directory
 
 ### `pip3 install -r requirements.txt` To install all dependencies
 
