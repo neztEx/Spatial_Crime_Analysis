@@ -176,25 +176,6 @@ function Visualizations() {
                   </Button>
                 </Grid>
               </Grid>
-              {/* <Grid item xs={12}>
-                <AgeSliderComp age={age} setAge={setAge} />
-              </Grid> */}
-
-              {/* <TabComp
-                area={area}
-                race={race}
-                gender={gender}
-                crimeType={crimeType}
-                filteredData={data}
-                listRefs={listRefs}
-                addToRefs={addToRefs}
-                zoomLevel={zoomLevel}
-                setZoomLevel={setZoomLevel}
-                setCenterCoordinates={setCenterCoordinates}
-                setSelectedItem={setSelectedItem}
-              /> */}
-              {/* <Resources /> */}
-              {/* <Footer headerRef={headerRef} /> */}
 
             </Container>
           </Grid>
@@ -209,8 +190,6 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            {/* <MapView heatMap={mapLayer} crimeData={data} /> */}
-            {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             <Analysis
               data={data}
               area={area}
