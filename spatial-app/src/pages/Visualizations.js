@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import '../App.css'
 import MapView from '../components/GoogleMap';
-import { Container, Grid, CssBaseline } from "@material-ui/core"
+import { Container, Grid, CssBaseline} from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
 import { useMediaQuery, Button } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
@@ -18,6 +18,9 @@ import cyan from "@material-ui/core/colors/blue"
 
 
 import * as QueryServer from '../components/QueryServer'
+import { previousSunday } from 'date-fns';
+import { previousDay } from 'date-fns/esm';
+import { padStart } from 'lodash';
 
 
 function Visualizations() {
@@ -41,7 +44,7 @@ function Visualizations() {
   const [submit, setSubmit] = React.useCallback([])
   const [queryType, setQueryType] = React.useState("None");
   const [queryUpdated, setQueryUpdated] = React.useState(false);
-
+  const [smallData, setSmallData] = useState([])
   const [data, setData] = useState([])
   const [twitterData, setTwitterData] = useState([])
   const [area, setArea] = useState("All Areas")
@@ -63,6 +66,8 @@ function Visualizations() {
   const [crimeType, setCrimeType] = useState("ALL CRIME TYPES")
   const raceArr = Object.keys(raceDict)
   const headerRef = useRef()
+  const [start, setStart] = useState(0)
+  const [end, setEnd] = useState(data.length > 1000 ? 1000 : 0)
 
 
   const onSelectChange = React.useEffect(() => {
@@ -74,15 +79,20 @@ function Visualizations() {
 
   }, [queryType])
 
+  const onSmallDataChange = React.useEffect(() => {
+    console.log(start, end, smallData)
+  }, [smallData])
+
 
   // const onQueryChange = React.useEffect(() => {
   //   QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
 
   // }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race])
 
-  const sendQuery = () =>{
+  const sendQuery = () => {
     console.log('sending query')
-    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
+    setSmallData([])
+    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => (setData(result_json), setEnd(result_json.length > 1000 ? 1000:result_json.length), setStart(0), setSmallData(result_json.slice(start,(result_json.length > 1000 ? 1000:result_json.length)))))
   }
 
   const onDataChange = React.useEffect(() => {
@@ -91,6 +101,37 @@ function Visualizations() {
 
   const handleChange = (selectedOption) => {
     setQueryType(selectedOption);
+  }
+
+  const next = () => {
+    if (end == data.length) {
+      setSmallData(data.slice(start,end))
+      return
+    }
+    setStart(start+1000)
+    
+    if (end+1000 > data.length) {
+      setEnd(data.length)
+    }
+    else{
+      setEnd(end+1000)
+    }
+    setSmallData(data.slice(start,end))
+  }
+
+  const prev = () => {
+    if (start == 0) {
+      setSmallData(data.slice(start,end))
+      return
+    }
+    setEnd(end-1000)
+    if (start-1000 < 0) {
+      setStart(0)
+    }
+    else{
+      setStart(start-1000)
+    }
+    setSmallData(data.slice(start,end))
   }
 
   return (
@@ -187,8 +228,25 @@ function Visualizations() {
                 </Grid>
                 <Grid item xs={12}>
                   <Button variant="contained" color="primary" type="submit" style={{ display: "flex", width: "100%" }}
-                   onClick={sendQuery}>
+                    onClick={sendQuery}>
                     Submit
+                  </Button>
+                </Grid>
+                <Grid item xs={4}>
+                  <Button variant="contained" type="Next" style={{ display: "flex", width: "100%" }}
+                    onClick={prev}>
+                    Prev
+                  </Button>
+                </Grid>
+                <Grid item xs={4}>
+                  <div>
+                    {start}...{end}
+                  </div>
+                </Grid>
+                <Grid item xs={4}>
+                  <Button variant="contained" type="Prev" style={{ display: "flex", width: "100%" }}
+                    onClick={next}>
+                    Next
                   </Button>
                 </Grid>
               </Grid>
@@ -225,7 +283,7 @@ function Visualizations() {
               alignItems: "center"
             }}
           >
-            <MapView heatMap={mapLayer} crimeData={data} queryType={queryType} twitterData={twitterData} />
+            <MapView heatMap={mapLayer} crimeData={smallData} queryType={queryType} twitterData={twitterData} />
             {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
             {/* <Analysis
               data={data}
