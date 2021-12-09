@@ -6,6 +6,8 @@ import datetime
 
 from pyspark import SQLContext
 import pyspark.sql.functions as f
+from pyspark.sql import DataFrame
+from functools import reduce
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,11 +31,23 @@ class QueryEngine:
         self.sql_context = SQLContext(sc)
         self.crime_data = self.LaCountyData(self.sql_context, dataset_path).data
         self.twitter_data = self.TwitterData(self.sql_context, dataset_path).data
+        self.crime_data_2010 = self.crime_data.filter(self.crime_data.year == "2010")
+        self.crime_data_2011 = self.crime_data.filter(self.crime_data.year == "2011")
+        self.crime_data_2011.show(10)
+        self.crime_data_2011.tail(10)
+        self.crime_data_2012 = self.crime_data.filter(self.crime_data.year == "2012")
+        self.crime_data_2013 = self.crime_data.filter(self.crime_data.year == "2013")
+        self.crime_data_2014 = self.crime_data.filter(self.crime_data.year == "2014")
+        self.crime_data_2015 = self.crime_data.filter(self.crime_data.year == "2015")
+        self.crime_data_2016 = self.crime_data.filter(self.crime_data.year == "2016")
+        self.crime_data_2017 = self.crime_data.filter(self.crime_data.year == "2017")
+        self.crime_data_2018 = self.crime_data.filter(self.crime_data.year == "2018")
+        self.crime_data_2019 = self.crime_data.filter(self.crime_data.year == "2019")
 
     class LaCountyData:
 
         def __init__(self, sql_la_county_data_context, dataset_path):
-            self.crime_data_file_path = os.path.join(dataset_path, 'crime_data.csv')
+            self.crime_data_file_path = os.path.join(dataset_path, 'crime_data_all.csv')
             self.crime_data = sql_la_county_data_context.read.format('com.databricks.spark.csv').options(header='true',
                                                                                                          inferschema='true').load(
                 self.crime_data_file_path). \
@@ -109,6 +123,7 @@ class QueryEngine:
             latitude = data_object.LAT
             longitude = data_object.LON
             month = data_object.DATE_OCC[0: 2]
+            year = data_object.DATE_OCC[6: 10]
             race = data_object.Vict_Descent
             # generating timestamp
             date_time = datetime.datetime(int(data_object.DATE_OCC[6: 10]), int(data_object.DATE_OCC[0: 2]),
@@ -116,7 +131,7 @@ class QueryEngine:
             timestamp = str(time.mktime(date_time.timetuple())).split('.')[0]
 
             return (crime_id, date_reported, date_occurred, time_occurred, part_of_the_day, area, area_name, age, sex,
-                    crime_type_id, crime_type, location, latitude, longitude, month, race, timestamp)
+                    crime_type_id, crime_type, location, latitude, longitude, month, year, race, timestamp)
 
         def __preprocess_data(self):
             """
@@ -126,10 +141,11 @@ class QueryEngine:
                 self.crime_data = self.crime_data.rdd.map(lambda x: QueryEngine.LaCountyData.__map_function(x)). \
                     toDF(["crime_id", "date_reported", "date_occurred", "time_occurred", "part_of_the_day", "area",
                           "area_name", "age", "sex",
-                          "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "race",
+                          "crime_type_id", "crime_type", "location", "latitude", "longitude", "month", "year", "race",
                           "timestamp"])
 
             logger.info(self.crime_data.columns)
+            self.crime_data = self.crime_data.sort(f.col("timestamp"))
             self.crime_data.show(10)
 
     class TwitterData:
@@ -254,20 +270,63 @@ def __generic_attribute_query(self, start_date, end_date, area_name, grouping_at
     return response
 
 
+def __aggregate_new_query(self, area_name, start_date, end_date, type_of_crime, gender, race):
+    """
+        Aggregate Query based on area_name, start_date, end_date, type_of_crime, gender, race
+    """
+    logger.info("Running Aggregate Query...")
+    start_time = time.time()
+    query_results = []
+    start_year = datetime.datetime.fromtimestamp(int(start_date)).year
+    end_year = datetime.datetime.fromtimestamp(int(end_date)).year
+    for year in range(start_year, end_year + 1):
+        logger.info(year)
+        dataframe = eval("self.crime_data_" + str(year))
+        dataframe.createOrReplaceTempView("crime_data_" + str(year))
+        dataframe.show(10)
+        intermediate_query = "select * from {7} where (area_name = '{0}' or '{1}' = 'all') and " \
+                             "(timestamp between '{2}' and '{3}') and " \
+                             "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
+                             "(race = '{6}' or '{6}' = 'all')" \
+            .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race, "crime_data_" + str(year))
+        logger.info("Running :- {}".format(intermediate_query))
+        intermediate_query_results = self.sql_context.sql(intermediate_query)
+        if intermediate_query_results.count() > 0:
+            query_results.append(intermediate_query_results)
+    final_result = reduce(DataFrame.union, query_results)
+    logger.info(final_result.count())
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
+    # Performance Checking
+    # self.crime_data.createOrReplaceTempView("crime_data")
+    # check_query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
+    #               "(timestamp between '{2}' and '{3}') and " \
+    #               "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
+    #               "(race = '{6}' or '{6}' = 'all')" \
+    #     .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
+    # logger.info("Running :- {}".format(check_query))
+    # check_query_results = self.sql_context.sql(check_query)
+    # logger.info("--- %s seconds ---" % (time.time() - start_time))
+    response = final_result.toJSON().map(lambda j: json.loads(j)).collect()
+    return response
+
 def __aggregate_query(self, area_name, start_date, end_date, type_of_crime, gender, race):
     """
         Aggregate Query based on area_name, start_date, end_date, type_of_crime, gender, race
     """
     logger.info("Running Aggregate Query...")
+    # Performance Checking
+    start_time = time.time()
     self.crime_data.createOrReplaceTempView("crime_data")
-    query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
-            "(timestamp between '{2}' and '{3}') and " \
-            "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
-            "(race = '{6}' or '{6}' = 'all')" \
+    check_query = "select * from crime_data where (area_name = '{0}' or '{1}' = 'all') and " \
+                  "(timestamp between '{2}' and '{3}') and " \
+                  "(crime_type = '{4}' or'{4}' = 'all') and (sex = '{5}' or '{5}' = 'all') and " \
+                  "(race = '{6}' or '{6}' = 'all')" \
         .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race)
-    logger.info("Running :- {}".format(query))
-    query_results = self.sql_context.sql(query)
-    response = query_results.toJSON().map(lambda j: json.loads(j)).collect()
+    logger.info("Running :- {}".format(check_query))
+    check_query_results = self.sql_context.sql(check_query)
+    logger.info(check_query_results.count())
+    logger.info("--- %s seconds ---" % (time.time() - start_time))
+    response = check_query_results.toJSON().map(lambda j: json.loads(j)).collect()
     return response
 
 
@@ -289,5 +348,6 @@ def __twitter_query(self):
 QueryEngine.__area_based_query = __area_based_query
 QueryEngine.__date_based_query = __date_based_query
 QueryEngine.__generic_attribute_query = __generic_attribute_query
+QueryEngine.__aggregate_new_query = __aggregate_new_query
 QueryEngine.__aggregate_query = __aggregate_query
 QueryEngine.__twitter_query = __twitter_query
