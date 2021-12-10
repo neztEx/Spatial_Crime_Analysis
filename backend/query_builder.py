@@ -35,6 +35,7 @@ class QueryEngine:
         self.crime_data_2011 = self.crime_data.filter(self.crime_data.year == "2011")
         self.crime_data_2011.show(10)
         self.crime_data_2011.tail(10)
+        self.crime_data_2011.cache()
         self.crime_data_2012 = self.crime_data.filter(self.crime_data.year == "2012")
         self.crime_data_2013 = self.crime_data.filter(self.crime_data.year == "2013")
         self.crime_data_2014 = self.crime_data.filter(self.crime_data.year == "2014")
@@ -43,6 +44,7 @@ class QueryEngine:
         self.crime_data_2017 = self.crime_data.filter(self.crime_data.year == "2017")
         self.crime_data_2018 = self.crime_data.filter(self.crime_data.year == "2018")
         self.crime_data_2019 = self.crime_data.filter(self.crime_data.year == "2019")
+        
 
     class LaCountyData:
 
@@ -291,9 +293,12 @@ def __aggregate_new_query(self, area_name, start_date, end_date, type_of_crime, 
             .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race, "crime_data_" + str(year))
         logger.info("Running :- {}".format(intermediate_query))
         intermediate_query_results = self.sql_context.sql(intermediate_query)
-        if intermediate_query_results.count() > 0:
+        if intermediate_query_results.count() > 1:
             query_results.append(intermediate_query_results)
-    final_result = reduce(DataFrame.union, query_results)
+    if len(query_results) > 1:
+        final_result = reduce(DataFrame.union, query_results)
+    else:
+        final_result = intermediate_query_results        
     logger.info(final_result.count())
     logger.info("--- %s seconds ---" % (time.time() - start_time))
     # Performance Checking

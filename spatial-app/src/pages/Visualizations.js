@@ -1,26 +1,18 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import '../App.css'
 import MapView from '../components/GoogleMap';
-import { Container, Grid, CssBaseline} from "@material-ui/core"
+import { Container, Grid, CssBaseline } from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
 import { useMediaQuery, Button } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
-import { Analysis } from "../components/Analysis"
-import Map from '../components/Map'
-
-
 import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr, queryTypeArr } from "../components/Arr"
 import SelectRaceComp from "../components/SelectRaceComp"
 import SelectComp from "../components/SelectComp"
-
 import pink from "@material-ui/core/colors/pink"
 import cyan from "@material-ui/core/colors/blue"
-
-
 import * as QueryServer from '../components/QueryServer'
-import { previousSunday } from 'date-fns';
-import { previousDay } from 'date-fns/esm';
-import { padStart } from 'lodash';
+import { Typography } from "@material-ui/core"
+
 
 
 function Visualizations() {
@@ -54,7 +46,6 @@ function Visualizations() {
   const [hour, setHour] = useState([0, 24])
   const [gender, setGender] = useState("All")
   const [selectedStartDate, setSelectedStartDate] = useState(
-    // new Date().setMonth(new Date().getMonth() - 1)
     new Date(2019, 0, 1)
   )
   const [selectedEndDate, setSelectedEndDate] = useState(new Date(2019, 0, 31))
@@ -83,7 +74,7 @@ function Visualizations() {
     console.log(start, end, smallData)
   }, [smallData])
 
-
+  // old queries
   // const onQueryChange = React.useEffect(() => {
   //   QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
 
@@ -91,8 +82,7 @@ function Visualizations() {
 
   const sendQuery = () => {
     console.log('sending query')
-    setSmallData([])
-    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => (setData(result_json), setEnd(result_json.length > 1000 ? 1000:result_json.length), setStart(0), setSmallData(result_json.slice(start,(result_json.length > 1000 ? 1000:result_json.length)))))
+    QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => (setData(result_json), setEnd(result_json.length > 1000 ? 1000 : result_json.length), setStart(0), setSmallData(result_json.slice(start, (result_json.length > 1000 ? 1000 : result_json.length)))))
   }
 
   const onDataChange = React.useEffect(() => {
@@ -105,40 +95,37 @@ function Visualizations() {
 
   const next = () => {
     if (end == data.length) {
-      setSmallData(data.slice(start,end))
+      setSmallData(data.slice(start, end))
       return
     }
-    setStart(start+1000)
-    
-    if (end+1000 > data.length) {
+    setStart(start + 1000)
+
+    if (end + 1000 > data.length) {
       setEnd(data.length)
     }
-    else{
-      setEnd(end+1000)
+    else {
+      setEnd(end + 1000)
     }
-    setSmallData(data.slice(start,end))
+    setSmallData(data.slice(start, end))
   }
 
   const prev = () => {
     if (start == 0) {
-      setSmallData(data.slice(start,end))
+      setSmallData(data.slice(start, end))
       return
     }
-    setEnd(end-1000)
-    if (start-1000 < 0) {
+    setEnd(end - 1000)
+    if (start - 1000 < 0) {
       setStart(0)
     }
-    else{
-      setStart(start-1000)
+    else {
+      setStart(start - 1000)
     }
-    setSmallData(data.slice(start,end))
+    setSmallData(data.slice(start, end))
   }
 
   return (
-    // <div>
-    //   <MapView heatMap={heatMap} />
-    //   <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/>
-    // </div>
+
     <div style={{ width: "100vw", overflow: "hidden" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -172,9 +159,7 @@ function Visualizations() {
                     setSelectedEndDate={setSelectedEndDate}
                   />
                 </Grid>
-                {/* <Grid item xs={12}>
-                  <HourSliderComp hour={hour} setHour={setHour} />
-                </Grid> */}
+
                 <Grid item xs={12}>
                   <SelectComp
                     title={"Select Crime Type"}
@@ -183,16 +168,6 @@ function Visualizations() {
                     setFoo={setCrimeType}
                   />
                 </Grid>
-                {/* <Grid item xs={12} style={{ marginBottom: 40 }}>
-                  <div style={{ marginBottom: 5, fontSize: 10 }}>
-                    Experimental Feature *
-                  </div>
-                  <ComboBox
-                    arr={mocodesDict}
-                    mocode={mocode}
-                    setMocode={setMocode}
-                  />
-                </Grid> */}
 
                 <Grid item xs={6}>
                   <SelectRaceComp
@@ -239,9 +214,18 @@ function Visualizations() {
                   </Button>
                 </Grid>
                 <Grid item xs={4}>
-                  <div>
+                  {/* <div style={{
+                    textAlign: "center",
+                  }}>
+                    
                     {start}...{end}
-                  </div>
+                  </div> */}
+                  <Typography style={{
+                    textAlign: "center",
+                    marginTop: 10
+                  }}>
+                    {start}...{end}
+                  </Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Button variant="contained" type="Prev" style={{ display: "flex", width: "100%" }}
@@ -250,25 +234,6 @@ function Visualizations() {
                   </Button>
                 </Grid>
               </Grid>
-              {/* <Grid item xs={12}>
-                <AgeSliderComp age={age} setAge={setAge} />
-              </Grid> */}
-
-              {/* <TabComp
-                area={area}
-                race={race}
-                gender={gender}
-                crimeType={crimeType}
-                filteredData={data}
-                listRefs={listRefs}
-                addToRefs={addToRefs}
-                zoomLevel={zoomLevel}
-                setZoomLevel={setZoomLevel}
-                setCenterCoordinates={setCenterCoordinates}
-                setSelectedItem={setSelectedItem}
-              /> */}
-              {/* <Resources /> */}
-              {/* <Footer headerRef={headerRef} /> */}
 
             </Container>
           </Grid>
@@ -284,14 +249,7 @@ function Visualizations() {
             }}
           >
             <MapView heatMap={mapLayer} crimeData={smallData} queryType={queryType} twitterData={twitterData} />
-            {/* <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/> */}
-            {/* <Analysis
-              data={data}
-              area={area}
-              race={race}
-              gender={gender}
-              crimeType={crimeType}
-            /> */}
+
           </Grid>
         </Grid>
       </ThemeProvider>

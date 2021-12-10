@@ -6,12 +6,7 @@ from pyspark import SparkContext, SparkConf
 
 def init_spark_context():
     # load spark context
-    conf = SparkConf().setAppName("Spatial-Crime-Analysis").setAll(
-        [('spark.eventLog.enabled', 'true'), ('spark.eventLog.dir',
-                                              '/Users/suraj/Documents/Crime '
-                                              'Analysis/Apache-Spark/spark-3.1.2-bin-hadoop3.2/logs'),
-         ('spark.history.fs.logDirectory',
-          '/Users/suraj/Documents/Crime Analysis/Apache-Spark/spark-3.1.2-bin-hadoop3.2/logs')])
+    conf = SparkConf().setAppName("Spatial-Crime-Analysis")
 
     # IMPORTANT: pass aditional Python modules to each worker
     sc = SparkContext(conf=conf, pyFiles=['query_builder.py', 'app.py'])

@@ -1,22 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import '../App.css'
-import MapView from '../components/GoogleMap';
 import { Container, Grid, CssBaseline } from "@material-ui/core"
 import { ThemeProvider, createTheme } from "@material-ui/core/styles"
 import { useMediaQuery, Button } from "@material-ui/core"
 import { DateFilterComp } from "../components/DateFilterComp"
 import { Analysis } from "../components/Analysis"
-import Map from '../components/Map'
-
 import { areaNameArr, raceDict, genderArr, crimeTypeArr, mapLayerArr } from "../components/Arr"
 import SelectRaceComp from "../components/SelectRaceComp"
 import SelectComp from "../components/SelectComp"
-
-import pink from "@material-ui/core/colors/pink"
-import cyan from "@material-ui/core/colors/cyan"
-import blueGrey from "@material-ui/core/colors/blueGrey"
-
-
 import * as QueryServer from '../components/QueryServer'
 
 
@@ -27,8 +18,6 @@ function Visualizations() {
       createTheme({
         palette: {
           type: prefersDarkMode ? "dark" : "light",
-          // primary: blueGrey,
-          // secondary: pink
         }
       }),
     [prefersDarkMode]
@@ -68,10 +57,6 @@ function Visualizations() {
     setQueryUpdated(!queryUpdated);
   }, [queryType])
 
-  // const onQueryChange = React.useEffect(() => {
-  //   QueryServer.generic(area, selectedStartDate, selectedEndDate, crimeType, gender, race).then(result_json => setData(result_json))
-
-  // }, [area, selectedStartDate, selectedEndDate, crimeType, gender, race])
 
   const sendQuery = () =>{
     console.log('sending query')
@@ -86,10 +71,7 @@ function Visualizations() {
   }
 
   return (
-    // <div>
-    //   <MapView heatMap={heatMap} />
-    //   <Switch onChange={(checked)=> {setheatMap(checked)}} checked={heatMap}/>
-    // </div>
+
     <div style={{ width: "100vw", overflow: "hidden" }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -123,9 +105,7 @@ function Visualizations() {
                     setSelectedEndDate={setSelectedEndDate}
                   />
                 </Grid>
-                {/* <Grid item xs={12}>
-                  <HourSliderComp hour={hour} setHour={setHour} />
-                </Grid> */}
+
                 <Grid item xs={12}>
                   <SelectComp
                     title={"Select Crime Type"}
@@ -134,16 +114,7 @@ function Visualizations() {
                     setFoo={setCrimeType}
                   />
                 </Grid>
-                {/* <Grid item xs={12} style={{ marginBottom: 40 }}>
-                  <div style={{ marginBottom: 5, fontSize: 10 }}>
-                    Experimental Feature *
-                  </div>
-                  <ComboBox
-                    arr={mocodesDict}
-                    mocode={mocode}
-                    setMocode={setMocode}
-                  />
-                </Grid> */}
+
 
                 <Grid item xs={6}>
                   <SelectRaceComp
@@ -161,14 +132,7 @@ function Visualizations() {
                     setFoo={setGender}
                   />
                 </Grid>
-                {/* <Grid item xs={12}>
-                  <SelectComp
-                    title={"Map Layers"}
-                    arr={mapLayerArr}
-                    foo={mapLayer}
-                    setFoo={setMapLayer}
-                  />
-                </Grid> */}
+
                 <Grid item xs={12}>
                   <Button variant="contained" color="primary" type="submit" style={{ display: "flex", width: "100%" }}
                    onClick={sendQuery}>
