@@ -49,7 +49,7 @@ class QueryEngine:
     class LaCountyData:
 
         def __init__(self, sql_la_county_data_context, dataset_path):
-            self.crime_data_file_path = os.path.join(dataset_path, 'crime_data.csv')
+            self.crime_data_file_path = os.path.join(dataset_path, 'crime_data_2019.csv')
             self.crime_data = sql_la_county_data_context.read.format('com.databricks.spark.csv').options(header='true',
                                                                                                          inferschema='true').load(
                 self.crime_data_file_path). \
