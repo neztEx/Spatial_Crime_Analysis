@@ -80,6 +80,14 @@ def aggregate_query():
                                                    request.args.get('gender'), request.args.get('race'))
     return json.dumps(query_results)
 
+@main.route("/aggregate_new_query", methods=["GET"])
+def aggregate_new_query():
+    logger.debug("Executing Aggregate Query...")
+    query_results = query_engine.__aggregate_new_query(request.args.get('area_name'), request.args.get('start_date'),
+                                                   request.args.get('end_date'), request.args.get('type_of_crime'),
+                                                   request.args.get('gender'), request.args.get('race'))
+    return json.dumps(query_results)
+
 @main.route("/twitter_query", methods=["GET"])
 def twitter_query():
     logger.debug("Executing Twitter Query...")

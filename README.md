@@ -26,6 +26,3 @@ The app allows for the user to submit various types of queries to the backend, t
 In addition to the visualization of the data, the app provides and analysis section that will allow the user to submit similar queries to be able to review the data from a analytic view.
 
 ![Analysis of the crime reported in a 31 day span](./images/charts1.png)
-
-
-## Development
