@@ -13,3 +13,7 @@ Make sure no process is running at port 5432.
 ### ` python3 server.py` Runs the app in the development mode.
 
 `The server will run at the port 5432 locally`
+
+`The Spark History Server is run at the port 4040 locally to check the job status`
+
+

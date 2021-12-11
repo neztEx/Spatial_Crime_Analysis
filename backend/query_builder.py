@@ -41,11 +41,14 @@ class QueryEngine:
         self.crime_data_2017 = self.crime_data.filter(self.crime_data.year == "2017")
         self.crime_data_2018 = self.crime_data.filter(self.crime_data.year == "2018")
         self.crime_data_2019 = self.crime_data.filter(self.crime_data.year == "2019")
+        
 
     class LaCountyData:
 
+
         def __init__(self, sql_la_county_data_context, dataset_path, data_file_path):
             self.crime_data_file_path = os.path.join(dataset_path, data_file_path)
+
             self.crime_data = sql_la_county_data_context.read.format('com.databricks.spark.csv').options(header='true',
                                                                                                          inferschema='true').load(
                 self.crime_data_file_path). \
@@ -331,10 +334,11 @@ def __aggregate_new_query(self, area_name, start_date, end_date, type_of_crime, 
             .format(area_name, area_name, start_date, end_date, type_of_crime, gender, race, "crime_data_" + str(year))
         logger.info("Running :- {}".format(intermediate_query))
         intermediate_query_results = self.sql_context.sql(intermediate_query)
-        if intermediate_query_results.count() > 0:
+        if intermediate_query_results.count() > 1:
             query_results.append(intermediate_query_results)
     if len(query_results) > 1:
         final_result = reduce(DataFrame.union, query_results)
+
     elif len(query_results) == 1:
         final_result = query_results[0]
     else:
